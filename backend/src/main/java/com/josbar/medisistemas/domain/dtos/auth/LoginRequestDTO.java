@@ -1,5 +1,6 @@
 package com.josbar.medisistemas.domain.dtos.auth;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class LoginRequestDTO {
-    private String correo;
-    private String contrasenia;
 
+    @NotBlank(message = "El correo es obligatorio.")
+    private String correo;
+
+    @NotBlank(message = "La contraseña es obligatoria.")
+    private String contrasenia;
 }

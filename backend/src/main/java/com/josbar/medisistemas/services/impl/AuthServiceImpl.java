@@ -6,27 +6,21 @@ import com.josbar.medisistemas.domain.dtos.auth.LoginRequestDTO;
 import com.josbar.medisistemas.domain.entities.UsuarioEntity;
 import com.josbar.medisistemas.exceptions.InvalidCredentialsException;
 import com.josbar.medisistemas.repositories.UsuarioRepository;
+import com.josbar.medisistemas.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
-/**
- * Nota: MediSistema todavía no implementa JWT (ver .agents/reglas_despliegue.md sección 9).
- * Esta implementación valida credenciales reales contra la base de datos, pero el "token"
- * devuelto es un identificador opaco sin firma ni expiración; el Frontend, además, ignora
- * la respuesta y redirige directo al dashboard (bypass intencional del login solicitado
- * para esta fase). Debe sustituirse por un JWT firmado cuando se implemente esa fase.
- */
 @Service
 public class AuthServiceImpl implements AuthService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthServiceImpl(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public AuthServiceImpl(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -42,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return AuthResponseDTO.builder()
-                .token(UUID.randomUUID().toString())
+                .token(jwtService.generarToken(usuario))
                 .build();
     }
 }

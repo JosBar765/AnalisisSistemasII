@@ -1,5 +1,6 @@
 package com.josbar.medisistemas.controllers.auth;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> autenticarUsuario(@RequestBody LoginRequestDTO loginRequest) {
+    public ResponseEntity<AuthResponseDTO> autenticarUsuario(@Valid @RequestBody LoginRequestDTO loginRequest) {
         AuthResponseDTO tokenResponse = authService.autenticar(loginRequest);
         return new ResponseEntity<>(tokenResponse, HttpStatus.OK);
     }

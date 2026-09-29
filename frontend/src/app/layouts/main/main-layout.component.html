@@ -57,7 +57,7 @@
         <span>Jornadas Médicas</span>
       </a>
       <div style="margin-top:auto; padding-top:16px;">
-        <a routerLink="/login" class="nav-item" style="color:var(--color-primary-muted);">
+        <a href="" (click)="$event.preventDefault(); cerrarSesion()" class="nav-item" style="color:var(--color-primary-muted);">
           <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
@@ -69,10 +69,10 @@
 
     <div class="sidebar-footer">
       <div class="user-profile">
-        <div class="user-avatar">AD</div>
+        <div class="user-avatar">{{ iniciales() }}</div>
         <div class="user-info">
-          <span class="user-name">Administrador</span>
-          <span class="user-role">Administrador</span>
+          <span class="user-name">{{ usuario()?.nombre }}</span>
+          <span class="user-role">{{ usuario()?.rol }}</span>
         </div>
       </div>
     </div>
