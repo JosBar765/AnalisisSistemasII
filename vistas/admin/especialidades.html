@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediSistema - Gestión de Especialidades</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand-icon">
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="sidebar-brand-text">MediSistema</div>
+          <span class="sidebar-brand-tag">Panel Admin</span>
+        </div>
+      </div>
+
+      <div class="sidebar-role-badge">
+        <span>Rol: Administrador</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">
+          <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="usuarios.html" class="nav-item">
+          <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+          </svg>
+          <span>Usuarios y Roles</span>
+        </a>
+        <a href="especialidades.html" class="nav-item active">
+          <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          <span>Especialidades</span>
+        </a>
+        <a href="medicos.html" class="nav-item">
+          <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+          </svg>
+          <span>Médicos</span>
+        </a>
+        <a href="jornadas.html" class="nav-item">
+          <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>Jornadas Médicas</span>
+        </a>
+        <div style="margin-top:auto; padding-top:16px;">
+          <a href="../index.html" class="nav-item" style="color:var(--color-primary-muted);">
+            <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Volver al Portal</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar">AD</div>
+          <div class="user-info">
+            <span class="user-name">Carlos Admin</span>
+            <span class="user-role">Administrador</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-bar">
+        <div>
+          <h1 class="page-header-title">Catálogo de áreas médicas y validación de dependencia de médicos</h1>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-primary" data-modal-target="modal-nueva-especialidad">
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Nueva Especialidad
+          </button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Catálogo de Especialidades Registradas</h3>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Especialidad</th>
+                  <th>Descripción</th>
+                  <th>Médicos Asociados</th>
+                  <th>Estado de Eliminación</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>ESP-001</strong></td>
+                  <td>Medicina General</td>
+                  <td>Atención médica general.</td>
+                  <td><span class="badge badge-info">1 Médicos</span></td>
+                  <td><span class="badge badge-warning">Protegido (Médicos activos)</span></td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm">Editar</button>
+                    <button class="btn btn-secondary btn-sm" disabled style="opacity: 0.5; cursor: not-allowed;"
+                      title="No se puede eliminar: tiene médicos asociados">Eliminar</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Nueva Especialidad -->
+  <div class="modal-backdrop" id="modal-nueva-especialidad">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Registrar Nueva Especialidad</h3>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label class="form-label">Nombre de Especialidad</label>
+            <input type="text" class="form-control" placeholder="Ej. Oftalmología" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" rows="3" placeholder="Descripción breve del área médica..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-modal-close>Cancelar</button>
+        <button class="btn btn-primary" data-modal-close>Guardar Especialidad</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/animations.js"></script>
+</body>
+
+</html>

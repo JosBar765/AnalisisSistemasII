@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediSistema - Pantalla de Llamado de Sala de Espera</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <style>
+    .caller-screen-container {
+      background-color: var(--color-primary-dark);
+      color: #FFFFFF;
+      min-height: 80vh;
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .active-caller-card {
+      background-color: var(--color-surface);
+      color: var(--color-text-main);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      border: 4px solid var(--color-primary);
+    }
+
+    .caller-patient-name {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--color-primary-dark);
+      margin: 12px 0;
+    }
+
+    .caller-doctor-room {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+  </style>
+</head>
+
+<body style="background-color:#0F172A;">
+  <div style="padding: 24px; max-width: 1200px; margin: 0 auto;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+      <h2 style="color:#FFF; font-size:22px; font-weight:700;">MediSistema — Llamador de Pacientes de Recepción</h2>
+      <a href="dashboard.html" class="btn btn-secondary">Regresar a Dashboard</a>
+    </div>
+
+    <div class="caller-screen-container">
+      <div class="active-caller-card pulse-active">
+        <span class="badge badge-warning" style="font-size:14px; padding:6px 16px;">FAVOR LLAMAR AL PACIENTE</span>
+        <div class="caller-patient-name">CARLOS MARIO FUENTES</div>
+        <div class="caller-doctor-room">CONSULTORIO 102 — DR. ROBERTO GÓMEZ (MÉDICO GENERAL)</div>
+      </div>
+
+      <div style="margin-top:32px;">
+        <h3 style="color:var(--color-bg-light); font-size:16px; margin-bottom:12px;">Siguientes Pacientes en Lista de
+          Espera:</h3>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
+          <div style="background:rgba(255,255,255,0.1); padding:16px; border-radius:var(--radius-sm);">
+            <div style="font-size:12px; color:var(--color-primary-muted);">Turno #3 — Cita 11:00 AM</div>
+            <div style="font-weight:700; font-size:16px;">María Rodriguez</div>
+            <div style="font-size:13px; color:var(--color-bg-light);">DR. ROBERTO GÓMEZ (MÉDICO GENERAL</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.1); padding:16px; border-radius:var(--radius-sm);">
+            <div style="font-size:12px; color:var(--color-primary-muted);">Turno #4 — Cita 11:30 AM</div>
+            <div style="font-weight:700; font-size:16px;">Fernando López</div>
+            <div style="font-size:13px; color:var(--color-bg-light);">DR. ROBERTO GÓMEZ (MÉDICO GENERAL</div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="border-top:1px solid rgba(255,255,255,0.1); padding-top:16px; font-size:12px; color:var(--color-primary-muted); display:flex; justify-content:space-between;">
+        <span>Hora Actual: 10:28 AM</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/animations.js"></script>
+</body>
+
+</html>

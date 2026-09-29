@@ -1,0 +1,81 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Catálogo de áreas médicas y validación de dependencia de médicos</h1>
+  </div>
+  <div class="top-actions">
+    <button class="btn btn-primary" (click)="abrirNueva()">
+      <svg class="svg-icon" viewBox="0 0 24 24">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Nueva Especialidad
+    </button>
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Catálogo de Especialidades Registradas</h3>
+    </div>
+
+    @if (cargando()) {
+      <app-loading-spinner />
+    } @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Especialidad</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (especialidad of especialidades(); track especialidad.id) {
+              <tr>
+                <td><strong>{{ especialidad.nombre }}</strong></td>
+                <td>
+                  <button class="btn btn-secondary btn-sm" (click)="abrirEditar(especialidad)">Editar</button>
+                  <button class="btn btn-outline-primary btn-sm" (click)="eliminar(especialidad)">Eliminar</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="2">No hay especialidades registradas.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+@if (modalAbierto()) {
+  <div class="modal-backdrop" (click)="cerrarModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          {{ especialidadEditando() ? 'Editar Especialidad' : 'Registrar Nueva Especialidad' }}
+        </h3>
+        <button class="modal-close" (click)="cerrarModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form" (ngSubmit)="guardar()">
+          <div class="form-group">
+            <label class="form-label">Nombre de Especialidad</label>
+            <input type="text" class="form-control" formControlName="nombre" placeholder="Ej. Oftalmología" required />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+        <button class="btn btn-primary" [disabled]="form.invalid" (click)="guardar()">Guardar Especialidad</button>
+      </div>
+    </div>
+  </div>
+}

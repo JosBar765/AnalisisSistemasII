@@ -1,0 +1,89 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Resumen estadístico y rendimiento operativo de MediSistema</h1>
+  </div>
+  <div class="top-actions">
+    <button class="btn btn-secondary btn-sm" (click)="cargarMetricas()">Actualizar</button>
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <app-loading-spinner />
+  } @else if (dashboard(); as data) {
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon-wrapper">
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div class="metric-data">
+          <span class="metric-value">{{ data.pacientesRegistrados }}</span>
+          <span class="metric-label">Pacientes Registrados</span>
+        </div>
+      </div>
+
+      <div class="metric-card" style="border-left-color: var(--color-success);">
+        <div class="metric-icon-wrapper" style="color:var(--color-success);">
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <div class="metric-data">
+          <span class="metric-value">{{ data.consultasRealizadas }}</span>
+          <span class="metric-label">Consultas Realizadas</span>
+        </div>
+      </div>
+
+      <div class="metric-card" style="border-left-color: var(--color-danger);">
+        <div class="metric-icon-wrapper" style="color:var(--color-danger);">
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+        </div>
+        <div class="metric-data">
+          <span class="metric-value">{{ data.citasCanceladas }}</span>
+          <span class="metric-label">Citas Canceladas</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Consultas y Atenciones por Médico</h3>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Médico</th>
+              <th>Consultas Atendidas</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of data.consultasPorMedico; track item.idMedico) {
+              <tr>
+                <td><strong>{{ item.nombreMedico }}</strong></td>
+                <td>{{ item.cantidad }}</td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="2">Todavía no hay consultas registradas.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

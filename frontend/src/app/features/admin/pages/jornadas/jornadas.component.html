@@ -1,0 +1,130 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Turnos, descansos e intervalo de consulta</h1>
+  </div>
+  <div class="top-actions">
+    <button class="btn btn-primary" (click)="abrirNueva()">
+      <svg class="svg-icon" viewBox="0 0 24 24">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Configurar Período
+    </button>
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <div class="card" style="background-color: var(--color-bg-light);">
+    <div class="form-row" style="align-items: end;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Seleccionar Médico para Configuración:</label>
+        <select
+          class="form-control"
+          style="font-weight:600; color:var(--color-primary-dark);"
+          [value]="idMedicoSeleccionado()"
+          (change)="seleccionarMedico($any($event.target).value)"
+        >
+          <option [value]="0">Seleccione un médico...</option>
+          @for (medico of medicos(); track medico.id) {
+            <option [value]="medico.id">
+              {{ medico.usuarioResponseDTO.primerNombre }} {{ medico.usuarioResponseDTO.primerApellido }} —
+              {{ medico.especialidadResponseDTO.nombre }}
+            </option>
+          }
+        </select>
+      </div>
+    </div>
+  </div>
+
+  @if (idMedicoSeleccionado()) {
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Jornada Semanal Configurada</h3>
+      </div>
+
+      @if (cargando()) {
+        <app-loading-spinner />
+      } @else {
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Día de la Semana</th>
+                <th>Hora Inicio</th>
+                <th>Hora Fin</th>
+                <th>Duración Consulta</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (jornada of jornadas(); track jornada.id) {
+                <tr>
+                  <td><strong>{{ jornada.diaSemanaResponseDTO.nombre }}</strong></td>
+                  <td><span class="badge badge-neutral">{{ jornada.horaInicio.slice(0, 5) }}</span></td>
+                  <td><span class="badge badge-neutral">{{ jornada.horaFin.slice(0, 5) }}</span></td>
+                  <td>{{ jornada.duracionConsulta }} min</td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm" (click)="abrirEditar(jornada)">Editar</button>
+                    <button class="btn btn-outline-primary btn-sm" (click)="eliminar(jornada)">Eliminar</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr class="empty-row">
+                  <td colspan="5">Este médico todavía no tiene períodos configurados.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (modalAbierto()) {
+  <div class="modal-backdrop" (click)="cerrarModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">Configurar Período de Atención</h3>
+        <button class="modal-close" (click)="cerrarModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form" (ngSubmit)="guardar()">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Día de la Semana</label>
+              <select class="form-control" formControlName="idDiaSemana" required>
+                <option [value]="0">Seleccione día...</option>
+                @for (dia of diasSemana(); track dia.id) {
+                  <option [value]="dia.id">{{ dia.nombre }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Duración Estimada de Consulta (Min)</label>
+              <input type="number" class="form-control" formControlName="duracionConsulta" min="1" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Hora Inicio Período</label>
+              <input type="time" class="form-control" formControlName="horaInicio" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hora Fin Período</label>
+              <input type="time" class="form-control" formControlName="horaFin" required />
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+        <button class="btn btn-primary" [disabled]="form.invalid" (click)="guardar()">Guardar Período</button>
+      </div>
+    </div>
+  </div>
+}

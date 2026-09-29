@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediSistema - Iniciar Sesión</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 50%, var(--color-bg-light) 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+      background-color: var(--color-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 25px -5px rgba(9, 99, 126, 0.25), 0 10px 10px -5px rgba(9, 99, 126, 0.1);
+      border: 1px solid var(--color-primary-muted);
+      overflow: hidden;
+      transition: transform var(--transition-normal);
+    }
+
+    .login-header {
+      background-color: var(--color-bg-light);
+      padding: 32px 24px 24px;
+      text-align: center;
+      border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .login-logo {
+      max-width: 160px;
+      height: auto;
+      margin-bottom: 12px;
+      object-fit: contain;
+    }
+
+    .login-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--color-primary-dark);
+      letter-spacing: -0.5px;
+    }
+
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+    }
+
+    .login-body {
+      padding: 28px 24px;
+    }
+
+    .role-selector-group {
+      margin-bottom: 20px;
+    }
+
+    .role-options-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .role-option-btn {
+      padding: 8px 4px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-surface);
+      color: var(--color-text-muted);
+      cursor: pointer;
+      text-align: center;
+      transition: all var(--transition-fast);
+    }
+
+    .role-option-btn:hover {
+      border-color: var(--color-primary-muted);
+      background-color: var(--color-bg-light);
+    }
+
+    .role-option-btn.active {
+      background-color: var(--color-primary);
+      color: #FFFFFF;
+      border-color: var(--color-primary-dark);
+    }
+
+    .quick-access-box {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--color-border-light);
+    }
+
+    .quick-access-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-primary-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .quick-btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quick-role-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background-color: var(--color-bg-light);
+      color: var(--color-primary-dark);
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--color-border-light);
+      transition: all var(--transition-fast);
+      text-decoration: none;
+    }
+
+    .quick-role-link:hover {
+      background-color: var(--color-primary-muted);
+      color: var(--color-primary-dark);
+      border-color: var(--color-primary);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-container">
+    <div class="login-header">
+      <!-- Logo corporativo de MediSistema desde la raíz -->
+      <img src="../logo.png" alt="MediSistema Logo" class="login-logo"
+        onerror="this.style.display='none'; document.getElementById('alt-brand').style.display='flex';">
+      <div id="alt-brand"
+        style="display:none; align-items:center; justify-content:center; gap:8px; margin-bottom:12px;">
+        <svg class="svg-icon" style="width:32px;height:32px;color:var(--color-primary-dark);" viewBox="0 0 24 24">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+        </svg>
+        <span style="font-size:24px; font-weight:800; color:var(--color-primary-dark);">MediSistema</span>
+      </div>
+      <h1 class="login-title">Acceso al Sistema</h1>
+      <p class="login-subtitle">Gestión Clínica y Control Hospitalario</p>
+    </div>
+
+    <div class="login-body">
+      <!-- Formulario de Acceso -->
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="username">Usuario o Correo Electrónico</label>
+          <input type="text" id="username" class="form-control" value="admin@medisistema.com"
+            placeholder="usuario@medisistema.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Contraseña</label>
+          <input type="password" id="password" class="form-control" value="••••••••••••" placeholder="Contraseña"
+            required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 8px;">
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+          Iniciar Sesión
+        </button>
+      </form>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        let selectedTarget = 'index.html';
+
+        const roleButtons = document.querySelectorAll('.role-option-btn');
+        roleButtons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            roleButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedTarget = btn.getAttribute('data-target');
+          });
+        });
+
+        const form = document.getElementById('login-form');
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          // Sin validación de credenciales: Redirige directamente al dashboard del rol seleccionado
+          window.location.href = selectedTarget;
+        });
+      });
+    </script>
+</body>
+
+</html>

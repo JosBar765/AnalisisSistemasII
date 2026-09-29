@@ -1,0 +1,116 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Vinculación de usuario, especialidad única y estado profesional</h1>
+  </div>
+  <div class="top-actions">
+    <button class="btn btn-primary" (click)="abrirNuevo()">
+      <svg class="svg-icon" viewBox="0 0 24 24">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Registrar Médico
+    </button>
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Cuerpo Médico de la Clínica</h3>
+    </div>
+
+    @if (cargando()) {
+      <app-loading-spinner />
+    } @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No. Colegiado</th>
+              <th>Médico</th>
+              <th>Especialidad Única</th>
+              <th>Usuario Asociado</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (medico of medicos(); track medico.id) {
+              <tr>
+                <td><strong>{{ medico.colegiado }}</strong></td>
+                <td>{{ medico.usuarioResponseDTO.primerNombre }} {{ medico.usuarioResponseDTO.primerApellido }}</td>
+                <td><span class="badge badge-info">{{ medico.especialidadResponseDTO.nombre }}</span></td>
+                <td><code>{{ medico.usuarioResponseDTO.correo }}</code></td>
+                <td>
+                  @if (medico.usuarioResponseDTO.estado) {
+                    <span class="badge badge-success">Activo (Recibe citas)</span>
+                  } @else {
+                    <span class="badge badge-danger">Inactivo</span>
+                  }
+                </td>
+                <td>
+                  <button class="btn btn-secondary btn-sm" (click)="abrirEditar(medico)">Editar Perfil</button>
+                  <button class="btn btn-outline-primary btn-sm" (click)="cambiarEstado(medico)">
+                    {{ medico.usuarioResponseDTO.estado ? 'Inactivar' : 'Activar' }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="6">No hay médicos registrados.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+@if (modalAbierto()) {
+  <div class="modal-backdrop" (click)="cerrarModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ medicoEditando() ? 'Editar Médico' : 'Registrar Nuevo Médico' }}</h3>
+        <button class="modal-close" (click)="cerrarModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form" (ngSubmit)="guardar()">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">No. Colegiado</label>
+              <input type="text" class="form-control" formControlName="colegiado" placeholder="COL-XXXXX" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Usuario del Sistema Vinculado</label>
+              <select class="form-control" formControlName="idUsuario" required>
+                <option [value]="0">Seleccione cuenta de usuario...</option>
+                @for (usuario of usuariosDisponibles(); track usuario.id) {
+                  <option [value]="usuario.id">{{ usuario.primerNombre }} {{ usuario.primerApellido }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Especialidad Única</label>
+            <select class="form-control" formControlName="idEspecialidad" required>
+              <option [value]="0">Seleccione especialidad...</option>
+              @for (especialidad of especialidades(); track especialidad.id) {
+                <option [value]="especialidad.id">{{ especialidad.nombre }}</option>
+              }
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+        <button class="btn btn-primary" [disabled]="form.invalid" (click)="guardar()">Guardar Médico</button>
+      </div>
+    </div>
+  </div>
+}

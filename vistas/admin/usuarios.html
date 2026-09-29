@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediSistema - Gestión de Usuarios y Roles</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand-icon">
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="sidebar-brand-text">MediSistema</div>
+          <span class="sidebar-brand-tag">Panel Admin</span>
+        </div>
+      </div>
+
+      <div class="sidebar-role-badge">
+        <span>Rol: Administrador</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">
+          <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="usuarios.html" class="nav-item active">
+          <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>Usuarios y Roles</span>
+        </a>
+        <a href="especialidades.html" class="nav-item">
+          <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          <span>Especialidades</span>
+        </a>
+        <a href="medicos.html" class="nav-item">
+          <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+          </svg>
+          <span>Médicos</span>
+        </a>
+        <a href="jornadas.html" class="nav-item">
+          <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>Jornadas Médicas</span>
+        </a>
+        <div style="margin-top:auto; padding-top:16px;">
+          <a href="../index.html" class="nav-item" style="color:var(--color-primary-muted);">
+            <svg class="svg-icon nav-icon" viewBox="0 0 24 24">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Volver al Portal</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar">AD</div>
+          <div class="user-info">
+            <span class="user-name">Carlos Admin</span>
+            <span class="user-role">Administrador</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-bar">
+        <div>
+          <h1 class="page-header-title">Registro, asignación de rol y control de estado de usuarios</h1>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-primary" data-modal-target="modal-nuevo-usuario">
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Registrar Usuario
+          </button>
+        </div>
+      </header>
+
+      <div class="content-body">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Listado de Usuarios del Sistema</h3>
+            <input type="text" class="form-control table-search-input" data-table-target="tabla-usuarios"
+              placeholder="Buscar por usuario o correo..." style="width:260px;">
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table" id="tabla-usuarios">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Nombre Completo</th>
+                  <th>Correo Electrónico</th>
+                  <th>Rol Asignado</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>cadmin</strong></td>
+                  <td>Carlos Administrador</td>
+                  <td>carlos.admin@medisistema.com</td>
+                  <td><span class="badge badge-info">Administrador</span></td>
+                  <td><span class="badge badge-success">Activo</span></td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm" data-modal-target="modal-nuevo-usuario">Editar</button>
+                    <button class="btn btn-outline-primary btn-sm">Desactivar</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>secretaria.ana</strong></td>
+                  <td>Ana Maria López</td>
+                  <td>ana.lopez@medisistema.com</td>
+                  <td><span class="badge badge-info">Secretaria</span></td>
+                  <td><span class="badge badge-success">Activo</span></td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm">Editar</button>
+                    <button class="btn btn-outline-primary btn-sm">Desactivar</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>dr.gomez</strong></td>
+                  <td>Dr. Roberto Gómez</td>
+                  <td>roberto.gomez@medisistema.com</td>
+                  <td><span class="badge badge-info">Médico</span></td>
+                  <td><span class="badge badge-success">Activo</span></td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm">Editar</button>
+                    <button class="btn btn-outline-primary btn-sm">Desactivar</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>dr.inactivo</strong></td>
+                  <td>Dr. Fernando Solís</td>
+                  <td>fernando.solis@medisistema.com</td>
+                  <td><span class="badge badge-info">Médico</span></td>
+                  <td><span class="badge badge-danger">Inactivo</span></td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm">Editar</button>
+                    <button class="btn btn-primary btn-sm">Activar</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Nuevo / Editar Usuario -->
+  <div class="modal-backdrop" id="modal-nuevo-usuario">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Registrar Nuevo Usuario</h3>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-usuario">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nombre de Usuario</label>
+              <input type="text" class="form-control" placeholder="Ej. secretaria.maria" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Correo Electrónico</label>
+              <input type="email" class="form-control" placeholder="correo@ejemplo.com" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nombre Completo</label>
+              <input type="text" class="form-control" placeholder="Nombre y Apellidos" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rol del Sistema</label>
+              <select class="form-control" required>
+                <option value="">Seleccione un rol...</option>
+                <option value="Administrador">Administrador</option>
+                <option value="Secretaria">Secretaria</option>
+                <option value="Medico">Médico</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contraseña Inicial</label>
+            <input type="password" class="form-control" placeholder="Contraseña segura" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-modal-close>Cancelar</button>
+        <button class="btn btn-primary" data-modal-close>Guardar Usuario</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script src="../js/animations.js"></script>
+</body>
+
+</html>
