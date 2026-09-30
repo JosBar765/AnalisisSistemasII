@@ -121,6 +121,21 @@ public class CitaServiceImpl implements CitaService {
     }
 
     @Override
+    public List<CitaEntity> obtenerAgendaDelMedico(Integer idMedico, LocalDate desde, LocalDate hasta) {
+        if (desde.isAfter(hasta)) {
+            throw new BusinessRuleException("La fecha inicial no puede ser posterior a la fecha final.");
+        }
+        return citaRepository.findByMedicoEntityIdAndFechaBetweenOrderByFechaAscHoraAsc(idMedico, desde, hasta);
+    }
+
+    @Override
+    public CitaEntity obtenerCitaDelMedico(Integer id, Integer idMedico) {
+        return citaRepository.findById(id)
+                .filter(cita -> cita.getMedicoEntity().getId().equals(idMedico))
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la cita con id " + id));
+    }
+
+    @Override
     @Transactional
     public CitaEntity cancelar(Integer id) {
         CitaEntity entity = findEnEspera(id, "cancelar");

@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 public interface AuditoriaConsultaRepository extends CrudRepository<AuditoriaConsultaEntity, Integer> {
-    List<AuditoriaConsultaEntity> findByConsultaEntityId(Integer idConsulta);
+    List<AuditoriaConsultaEntity> findByConsultaEntityIdOrderByFechaModificacionDesc(Integer idConsulta);
 }

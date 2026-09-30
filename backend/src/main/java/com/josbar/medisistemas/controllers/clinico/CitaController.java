@@ -70,6 +70,25 @@ public class CitaController {
         return new ResponseEntity<>(agenda, HttpStatus.OK);
     }
 
+    @GetMapping("/mis-citas")
+    public ResponseEntity<List<CitaResponseDTO>> consultarMisCitas(
+            @RequestParam LocalDate desde,
+            @RequestParam LocalDate hasta,
+            @AuthenticationPrincipal Jwt jwt) {
+        List<CitaResponseDTO> agenda = citaService.obtenerAgendaDelMedico(Integer.valueOf(jwt.getSubject()), desde, hasta).stream()
+                .map(citaMapper::toResponse)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(agenda, HttpStatus.OK);
+    }
+
+    @GetMapping("/mis-citas/{id}")
+    public ResponseEntity<CitaResponseDTO> consultarMiCita(
+            @PathVariable("id") Integer id,
+            @AuthenticationPrincipal Jwt jwt) {
+        var cita = citaService.obtenerCitaDelMedico(id, Integer.valueOf(jwt.getSubject()));
+        return new ResponseEntity<>(citaMapper.toResponse(cita), HttpStatus.OK);
+    }
+
     @PutMapping("/{id}/cancelar")
     public ResponseEntity<CitaResponseDTO> cancelarCita(@PathVariable("id") Integer id) {
         var canceled = citaService.cancelar(id);

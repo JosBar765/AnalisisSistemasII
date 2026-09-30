@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -58,6 +59,36 @@ public class AuditoriaConsultaEntity {
 
     @Column(name = "observaciones_nuevo")
     private String observacionesNuevo;
+
+    @Column(name = "peso_anterior", precision = 5, scale = 2)
+    private BigDecimal pesoAnterior;
+
+    @Column(name = "altura_anterior", precision = 5, scale = 2)
+    private BigDecimal alturaAnterior;
+
+    @Column(name = "presion_sistolica_anterior")
+    private Integer presionSistolicaAnterior;
+
+    @Column(name = "presion_diastolica_anterior")
+    private Integer presionDiastolicaAnterior;
+
+    @Column(name = "temperatura_anterior", precision = 3, scale = 1)
+    private BigDecimal temperaturaAnterior;
+
+    @Column(name = "peso_nuevo", precision = 5, scale = 2)
+    private BigDecimal pesoNuevo;
+
+    @Column(name = "altura_nueva", precision = 5, scale = 2)
+    private BigDecimal alturaNueva;
+
+    @Column(name = "presion_sistolica_nueva")
+    private Integer presionSistolicaNueva;
+
+    @Column(name = "presion_diastolica_nueva")
+    private Integer presionDiastolicaNueva;
+
+    @Column(name = "temperatura_nueva", precision = 3, scale = 1)
+    private BigDecimal temperaturaNueva;
 
     // Getters y setters
 }

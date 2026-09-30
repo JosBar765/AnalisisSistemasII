@@ -1,6 +1,7 @@
 package com.josbar.medisistemas.mappers.impl;
 
 import com.josbar.medisistemas.domain.dtos.auditoria.AuditoriaConsultaResponseDTO;
+import com.josbar.medisistemas.domain.dtos.consulta.SignosVitalesRequestDTO;
 import com.josbar.medisistemas.domain.entities.AuditoriaConsultaEntity;
 import com.josbar.medisistemas.mappers.Mapper;
 import org.springframework.stereotype.Component;
@@ -48,6 +49,22 @@ public class AuditoriaConsultaMapper implements Mapper<AuditoriaConsultaEntity, 
         dto.setDiagnosticoNuevo(entity.getDiagnosticoNuevo());
         dto.setTratamientoNuevo(entity.getTratamientoNuevo());
         dto.setObservacionesNuevo(entity.getObservacionesNuevo());
+
+        dto.setNombreUsuario(entity.getUsuarioEntity() != null
+                ? entity.getUsuarioEntity().getPrimerNombre() + " " + entity.getUsuarioEntity().getPrimerApellido()
+                : null);
+        dto.setMotivoModificacion(entity.getMotivoModificacionConsultaEntity() != null
+                ? entity.getMotivoModificacionConsultaEntity().getMotivoModificacion()
+                : null);
+
+        if (entity.getPesoAnterior() != null) {
+            dto.setSignosVitalesAnteriores(new SignosVitalesRequestDTO(entity.getPesoAnterior(), entity.getAlturaAnterior(),
+                    entity.getPresionSistolicaAnterior(), entity.getPresionDiastolicaAnterior(), entity.getTemperaturaAnterior()));
+        }
+        if (entity.getPesoNuevo() != null) {
+            dto.setSignosVitalesNuevos(new SignosVitalesRequestDTO(entity.getPesoNuevo(), entity.getAlturaNueva(),
+                    entity.getPresionSistolicaNueva(), entity.getPresionDiastolicaNueva(), entity.getTemperaturaNueva()));
+        }
 
         // Fecha de la auditoría
         dto.setFechaModificacion(entity.getFechaModificacion());

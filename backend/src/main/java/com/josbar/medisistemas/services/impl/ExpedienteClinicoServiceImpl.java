@@ -41,7 +41,7 @@ public class ExpedienteClinicoServiceImpl implements ExpedienteClinicoService {
 
         return ExpedienteClinicoResponseDTO.builder()
                 .pacienteResponseDTO(pacienteMapper.toResponse(paciente))
-                .historialConsultasResponseDTO(consultaRepository.findByCitaEntityPacienteEntityId(idPaciente).stream()
+                .historialConsultasResponseDTO(consultaRepository.findByCitaEntityPacienteEntityIdOrderByCitaEntityFechaDescCitaEntityHoraDesc(idPaciente).stream()
                         .map(consultaMapper::toResponse)
                         .collect(Collectors.toList()))
                 .documentosClinicosResponseDTO(documentoRepository.findByPacienteEntityId(idPaciente).stream()

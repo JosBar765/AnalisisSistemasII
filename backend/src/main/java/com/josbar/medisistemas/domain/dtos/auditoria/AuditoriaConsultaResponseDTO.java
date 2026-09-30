@@ -1,5 +1,6 @@
 package com.josbar.medisistemas.domain.dtos.auditoria;
 
+import com.josbar.medisistemas.domain.dtos.consulta.SignosVitalesRequestDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,13 +23,17 @@ public class AuditoriaConsultaResponseDTO {
     private String observacionesAnterior;
 
     private Integer idUsuario;
+    private String nombreUsuario;
 
     private LocalDateTime fechaModificacion;
 
     private Integer idMotivoModificacion;
+    private String motivoModificacion;
 
     private String motivoConsultaNuevo;
     private String diagnosticoNuevo;
     private String tratamientoNuevo;
     private String observacionesNuevo;
+    private SignosVitalesRequestDTO signosVitalesAnteriores;
+    private SignosVitalesRequestDTO signosVitalesNuevos;
 }

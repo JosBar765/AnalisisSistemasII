@@ -17,8 +17,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 /**
  * Autenticación stateless con JWT. El rol viaja en el claim "rol" y se traduce a
  * la autoridad ROLE_<rol>. Aquí solo se protege lo que ya está definido en el análisis
- * (administración y secretaria); el resto exige estar autenticado hasta que cada módulo
- * defina sus reglas por rol.
+ * (administración, secretaria y médico); el resto exige estar autenticado.
  */
 @Configuration
 @EnableWebSecurity
@@ -40,8 +39,11 @@ public class SecurityConfig {
                         // El handshake es público; el WebSocket valida el JWT en su primer mensaje.
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/citas/*/llamado").hasRole(MEDICO)
+                        // El médico solo ve su propia agenda; la información clínica es solo del médico.
+                        .requestMatchers(HttpMethod.GET, "/citas/mis-citas/**").hasRole(MEDICO)
+                        .requestMatchers("/consultas/**", "/expedientes/**", "/auditorias/consultas/**").hasRole(MEDICO)
                         // Consulta: secretaria y médico. Registro y modificación: solo secretaria.
-                        .requestMatchers(HttpMethod.GET, "/pacientes/**", "/citas/**", "/documentos/**",
+                        .requestMatchers(HttpMethod.GET, "/pacientes/**", "/documentos/**",
                                 "/auditorias/documentos/**").hasAnyRole(SECRETARIA, MEDICO)
                         .requestMatchers("/pacientes/**", "/citas/**", "/documentos/**").hasRole(SECRETARIA)
                         // La secretaria necesita ver los médicos para programar citas.

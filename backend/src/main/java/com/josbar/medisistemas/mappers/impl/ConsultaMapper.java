@@ -47,7 +47,18 @@ public class ConsultaMapper implements Mapper<ConsultaEntity, RegistrarConsultaR
         if(entity == null) return null;
         ConsultaResponseDTO dto = new ConsultaResponseDTO();
         dto.setId(entity.getId());
-        dto.setIdCita(entity.getCitaEntity() != null ? entity.getCitaEntity().getId() : null);
+        if (entity.getCitaEntity() != null) {
+            CitaEntity cita = entity.getCitaEntity();
+            dto.setIdCita(cita.getId());
+            dto.setFecha(cita.getFecha());
+            dto.setHora(cita.getHora());
+            dto.setIdMedico(cita.getMedicoEntity().getId());
+            dto.setNombreMedico(cita.getMedicoEntity().getUsuarioEntity().getPrimerNombre() + " "
+                    + cita.getMedicoEntity().getUsuarioEntity().getPrimerApellido());
+            dto.setIdPaciente(cita.getPacienteEntity().getId());
+            dto.setNombrePaciente(cita.getPacienteEntity().getPrimerNombre() + " "
+                    + cita.getPacienteEntity().getPrimerApellido());
+        }
         dto.setMotivoConsulta(entity.getMotivoConsulta());
         dto.setDiagnostico(entity.getDiagnostico());
         dto.setTratamiento(entity.getTratamiento());
@@ -68,7 +79,7 @@ public class ConsultaMapper implements Mapper<ConsultaEntity, RegistrarConsultaR
 
     /**
      * Actualiza una entidad Consulta existente con los datos proporcionados en el DTO.
-     * Solo se actualizan los campos que no vengan nulos en la petición.
+     * Solo se actualizan los campos que no vengan nulos en la petición (incluidos los signos vitales).
      */
     public void updateEntity(ModificarConsultaRequestDTO request, ConsultaEntity entity) {
         if (request == null || entity == null) { return; }
@@ -87,6 +98,19 @@ public class ConsultaMapper implements Mapper<ConsultaEntity, RegistrarConsultaR
 
         if (request.getObservaciones() != null) {
             entity.setObservaciones(request.getObservaciones());
+        }
+        if (request.getSignosVitalesRequestDTO() != null) {
+            SignosVitalesEntity sv = entity.getSignosVitalesEntity();
+            if (sv == null) {
+                sv = new SignosVitalesEntity();
+                sv.setConsultaEntity(entity);
+                entity.setSignosVitalesEntity(sv);
+            }
+            sv.setPeso(request.getSignosVitalesRequestDTO().getPeso());
+            sv.setAltura(request.getSignosVitalesRequestDTO().getAltura());
+            sv.setPresionSistolica(request.getSignosVitalesRequestDTO().getPresionSistolica());
+            sv.setPresionDiastolica(request.getSignosVitalesRequestDTO().getPresionDiastolica());
+            sv.setTemperatura(request.getSignosVitalesRequestDTO().getTemperatura());
         }
     }
 }

@@ -30,7 +30,7 @@ public class AuditoriaServiceImpl implements AuditoriaService {
 
     @Override
     public List<AuditoriaConsultaResponseDTO> obtenerAuditoriasPorConsulta(Integer idConsulta) {
-        return auditoriaConsultaRepository.findByConsultaEntityId(idConsulta).stream()
+        return auditoriaConsultaRepository.findByConsultaEntityIdOrderByFechaModificacionDesc(idConsulta).stream()
                 .map(auditoriaConsultaMapper::toResponse)
                 .collect(Collectors.toList());
     }

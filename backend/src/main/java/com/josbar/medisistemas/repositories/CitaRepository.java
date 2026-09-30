@@ -9,6 +9,8 @@ import java.util.List;
 public interface CitaRepository extends CrudRepository<CitaEntity, Integer> {
     List<CitaEntity> findByFechaOrderByHora(LocalDate fecha);
     List<CitaEntity> findByFechaBetweenOrderByFechaAscHoraAsc(LocalDate desde, LocalDate hasta);
+    List<CitaEntity> findByMedicoEntityIdAndFechaBetweenOrderByFechaAscHoraAsc(Integer idMedico, LocalDate desde, LocalDate hasta);
+
     List<CitaEntity> findByMedicoEntityIdAndFechaOrderByHora(Integer idMedico, LocalDate fecha);
     List<CitaEntity> findByMedicoEntityIdAndFechaAndEstadoCitaEntityEstadoCitaNot(Integer idMedico, LocalDate fecha, String estadoCita);
     long countByEstadoCitaEntityEstadoCita(String estadoCita);
