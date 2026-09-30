@@ -30,7 +30,10 @@ frontend/src/app/
   fuera del layout (como en la vista propuesta).
 - `layouts/main/main-layout.*`: el menú y el rótulo dependen del rol (admin o secretaria).
 - `core/services/auth.service.ts`: ruta de inicio de `SECRETARIA` → `/inicio`.
-- `environments/*`: `wsUrl` (en producción debe ser `wss://` del mismo host que `apiUrl`).
+- `scripts/generate-env.mjs`: los `environments/*.ts` no se editan a mano (ver `correcciones1.md`); el script ahora
+  también genera `wsUrl` = `apiUrl` con `http`→`ws` / `https`→`wss` + `/ws/citas` (local:
+  `ws://localhost:${SERVER_PORT}/ws/citas`; producción: derivada de `API_URL_PRODUCTION`). `WebSocketService`
+  se conecta a `environment.wsUrl`.
 
 ## Funcionalidades
 

@@ -94,9 +94,7 @@ ejecutar `npm start` o `npm run build`.
   es pública por naturaleza.
 - El puerto `6061` citado arriba es el del `.env` local de un desarrollador, no un valor fijo del
   proyecto. `.env` no se versiona.
-- `WS_URL` (WebSocket, ver `reglas_despliegue.md` §12) **no** se generó porque aún no existe
-  `WebSocketService`. Cuando se implemente, agregarlo a `generate-env.mjs` siguiendo el mismo
-  patrón (derivado de `SERVER_PORT` en local, variable propia en producción).
+- `wsUrl` (WebSocket) también lo genera el script a partir de `apiUrl`; ver `creacion_modulo_secretaria.md`.
 - Verificado: `npm run prestart` con el `.env` actual genera `apiUrl: 'http://localhost:6061'`.
   No se ejecutó `ng serve` ni `ng build` tras el cambio.
 
