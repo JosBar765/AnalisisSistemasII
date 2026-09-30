@@ -23,9 +23,14 @@ const requerida = (nombre) => {
   return variables[nombre];
 };
 
+// El WebSocket vive en el mismo host que la API: http -> ws, https -> wss.
+const RUTA_WEBSOCKET = '/ws/citas';
+const aWebSocket = (apiUrl) => (apiUrl ? apiUrl.replace(/^http/, 'ws') + RUTA_WEBSOCKET : '');
+
 const plantilla = (production, apiUrl) =>
   `// Archivo generado por scripts/generate-env.mjs. No editar ni versionar.\n` +
-  `export const environment = {\n  production: ${production},\n  apiUrl: '${apiUrl}',\n};\n`;
+  `export const environment = {\n  production: ${production},\n  apiUrl: '${apiUrl}',\n` +
+  `  wsUrl: '${aWebSocket(apiUrl)}',\n};\n`;
 
 const dir = resolve(raiz, 'src/environments');
 const apiLocal = `http://localhost:${requerida('SERVER_PORT')}`;
