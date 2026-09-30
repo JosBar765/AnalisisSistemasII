@@ -42,3 +42,5 @@ npm-debug.log
 .env
 .env.*
 !.env.example
+# Generados por frontend/scripts/generate-env.mjs
+frontend/src/environments/*.ts
