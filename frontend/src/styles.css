@@ -716,3 +716,72 @@ a:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- Módulo Médico: ficha de paciente, signos vitales y comparativa de auditoría ---- */
+.patient-summary-header {
+  background-color: var(--color-surface);
+  border-left: 5px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+
+.vital-box {
+  background-color: var(--color-bg-light);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.vital-title {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.vital-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.diff-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.diff-box-old,
+.diff-box-new {
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 13px;
+}
+
+.diff-box-old {
+  background-color: var(--color-danger-bg);
+  border: 1px solid var(--color-danger);
+}
+
+.diff-box-new {
+  background-color: var(--color-success-bg);
+  border: 1px solid var(--color-success);
+}
+
+.diff-box-old p,
+.diff-box-new p {
+  margin-bottom: 6px;
+  white-space: pre-line;
+}
+
+@media (max-width: 768px) {
+  .diff-grid {
+    grid-template-columns: 1fr;
+  }
+}
