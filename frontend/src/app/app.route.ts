@@ -51,5 +51,27 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    // Módulo de Médico. La consulta activa y la auditoría se abren desde la agenda o el expediente.
+    path: '',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['MEDICO'] },
+    loadComponent: () => import('./layouts/main/main-layout.component').then((m) => m.MainLayoutComponent),
+    children: [
+      {
+        path: 'agenda',
+        loadComponent: () =>
+          import('./features/agenda-medica/pages/agenda/agenda.component').then((m) => m.AgendaMedicaComponent),
+      },
+      {
+        path: 'expedientes',
+        loadChildren: () => import('./features/expediente/expediente.routes').then((m) => m.EXPEDIENTE_ROUTES),
+      },
+      {
+        path: 'consultas',
+        loadChildren: () => import('./features/consultas/consultas.routes').then((m) => m.CONSULTAS_ROUTES),
+      },
+    ],
+  },
   { path: '**', redirectTo: 'login' },
 ];

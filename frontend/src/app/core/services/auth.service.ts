@@ -13,6 +13,7 @@ const TOKEN_KEY = 'medisistema_token';
 const RUTA_INICIO: Partial<Record<Rol, string>> = {
   ADMINISTRADOR: '/admin/dashboard',
   SECRETARIA: '/inicio',
+  MEDICO: '/agenda',
 };
 
 interface JwtPayload {

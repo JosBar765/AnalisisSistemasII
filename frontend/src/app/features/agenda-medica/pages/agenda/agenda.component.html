@@ -1,0 +1,172 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Mi calendario</h1>
+    <p class="page-header-subtitle">Sus citas, la cola de pacientes presentes y las consultas finalizadas</p>
+  </div>
+  <div class="top-actions">
+    <input
+      type="date"
+      class="form-control"
+      [value]="fecha()"
+      (change)="cambiarFecha($any($event.target).value)"
+      aria-label="Fecha de la agenda"
+    />
+    @if (esHoy()) {
+      <button class="btn btn-primary btn-lg" [disabled]="!siguiente()" (click)="solicitarLlamado(siguiente()!)">
+        Solicitar Llamar Siguiente Paciente
+      </button>
+    }
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <app-loading-spinner />
+  } @else {
+    @if (esHoy()) {
+      @for (cita of llamados(); track cita.id) {
+        <div class="alert alert-warning" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+          <div>
+            <strong>Solicitud enviada a Recepción:</strong> se notificó a la secretaria para llamar al paciente en sala:
+            <strong>{{ cita.pacienteResponseDTO | nombreCompleto }}</strong>.
+          </div>
+          <a [routerLink]="['/consultas/nueva', cita.id]" class="btn btn-primary btn-sm">Iniciar Consulta Médica</a>
+        </div>
+      }
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Cola de Pacientes Presentes en Recepción Hoy</h3>
+          <span class="badge badge-success">{{ cola().length }} Pacientes Listos</span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Orden Cola</th>
+                <th>Hora Est. Cita</th>
+                <th>Paciente</th>
+                <th>Edad</th>
+                <th>Estado en Sala</th>
+                <th>Expediente Clínico</th>
+                <th>Acción Médica</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (cita of cola(); track cita.id; let i = $index) {
+                <tr>
+                  <td><strong>#{{ i + 1 }}</strong></td>
+                  <td>{{ cita.hora | hora12 }}</td>
+                  <td>{{ cita.pacienteResponseDTO | nombreCompleto }}</td>
+                  <td>{{ cita.pacienteResponseDTO.fechaNacimiento | edad }}</td>
+                  <td>
+                    @if (cita.horaSolicitudLlamado) {
+                      <span class="badge badge-warning">Llamado Solicitado</span>
+                    } @else {
+                      <span class="badge badge-success">Presente en Sala</span>
+                    }
+                  </td>
+                  <td>
+                    <a [routerLink]="['/expedientes', cita.pacienteResponseDTO.id]" class="btn btn-secondary btn-sm">Ver Expediente</a>
+                  </td>
+                  <td>
+                    @if (cita.horaSolicitudLlamado) {
+                      <a [routerLink]="['/consultas/nueva', cita.id]" class="btn btn-primary btn-sm">Atender Consulta</a>
+                    } @else {
+                      <button class="btn btn-outline-primary btn-sm" (click)="solicitarLlamado(cita)">Solicitar Llamado</button>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr class="empty-row">
+                  <td colspan="7">No hay pacientes presentes en espera. La secretaria registra su llegada en recepción.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{{ esHoy() ? 'Citas de Hoy' : 'Citas del ' + fecha() }}</h3>
+        <span class="badge badge-neutral">{{ citasVigentes().length }} Citas</span>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Hora Est. Cita</th>
+              <th>Paciente</th>
+              <th>Edad</th>
+              <th>Estado</th>
+              <th>Expediente Clínico</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (cita of citasVigentes(); track cita.id) {
+              <tr>
+                <td>{{ cita.hora | hora12 }}</td>
+                <td>{{ cita.pacienteResponseDTO | nombreCompleto }}</td>
+                <td>{{ cita.pacienteResponseDTO.fechaNacimiento | edad }}</td>
+                <td>
+                  <span class="badge" [class]="'badge ' + claseEstado(cita)">
+                    {{ estaEnEspera(cita) && cita.horaLlegada ? 'Presente en Sala' : cita.estadoCitaResponseDTO.nombre }}
+                  </span>
+                </td>
+                <td>
+                  <a [routerLink]="['/expedientes', cita.pacienteResponseDTO.id]" class="btn btn-secondary btn-sm">Ver Expediente</a>
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="5">No tiene citas programadas para esta fecha.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Consultas Finalizadas</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Hora de Cita</th>
+              <th>Paciente</th>
+              <th>Diagnóstico Registrado</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (consulta of consultas(); track consulta.id) {
+              <tr>
+                <td>{{ consulta.hora | hora12 }}</td>
+                <td>{{ consulta.nombrePaciente }}</td>
+                <td>{{ consulta.diagnostico }}</td>
+                <td><span class="badge badge-success">Atendido</span></td>
+                <td>
+                  <a [routerLink]="['/consultas', consulta.id]" class="btn btn-secondary btn-sm">Ver / Modificar Consulta</a>
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="5">Aún no hay consultas finalizadas en esta fecha.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

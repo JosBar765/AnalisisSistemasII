@@ -1,0 +1,76 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">
+      Atención clínica{{ cita() ? ': ' : '' }}{{ cita()?.pacienteResponseDTO | nombreCompleto }}
+    </h1>
+  </div>
+  <div class="top-actions">
+    @if (cita()) {
+      <a [routerLink]="['/expedientes', cita()!.pacienteResponseDTO.id]" target="_blank" class="btn btn-secondary">Ver Expediente</a>
+    }
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <app-loading-spinner />
+  } @else if (cita()) {
+    <form [formGroup]="form" (ngSubmit)="finalizar()">
+      <div class="patient-summary-header">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+          <div>
+            <h2 style="color:var(--color-primary-dark); font-size:20px;">
+              {{ cita()!.pacienteResponseDTO | nombreCompleto }} ({{ cita()!.pacienteResponseDTO.fechaNacimiento | edad }})
+            </h2>
+            <p style="font-size:13px; color:var(--color-text-muted);">
+              Cita estimada: {{ cita()!.hora | hora12 }} | DPI: {{ cita()!.pacienteResponseDTO.dpi }}
+            </p>
+          </div>
+          <span class="badge badge-warning" style="font-size:13px; padding:6px 12px;">
+            Estado Cita: {{ cita()!.estadoCitaResponseDTO.nombre }}
+          </span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">1. Motivo de Consulta</h3></div>
+        <div class="form-group">
+          <label class="form-label">Sintomatología y Motivo Principal</label>
+          <textarea class="form-control" rows="3" formControlName="motivoConsulta" placeholder="Describa el motivo por el cual acude el paciente..."></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">2. Signos Vitales de la Consulta</h3></div>
+        <app-signos-vitales-campos [grupo]="form.controls.signos" />
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">3. Diagnóstico y Tratamiento</h3></div>
+        <div class="form-group">
+          <label class="form-label">Diagnóstico Médico</label>
+          <input type="text" class="form-control" formControlName="diagnostico" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tratamiento Indicado y Receta Médica</label>
+          <textarea class="form-control" rows="3" formControlName="tratamiento" placeholder="Medicamentos, dosis y frecuencia..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Observaciones Médicas Adicionales</label>
+          <textarea class="form-control" rows="2" formControlName="observaciones" placeholder="Notas de evolución u observaciones clínicas..."></textarea>
+        </div>
+      </div>
+
+      <div class="card" style="background-color:var(--color-bg-light); text-align:right;">
+        <a routerLink="/agenda" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary btn-lg" [disabled]="form.invalid || guardando()">
+          Finalizar y Guardar Consulta ("Atendido")
+        </button>
+      </div>
+    </form>
+  }
+</div>

@@ -1,0 +1,105 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Consulta Finalizada</h1>
+    <p class="page-header-subtitle">Corrección de registro médico con auditoría de diferencias</p>
+  </div>
+  <div class="top-actions">
+    <a routerLink="/agenda" class="btn btn-secondary">Volver a la Agenda</a>
+    @if (consulta() && puedeModificar()) {
+      <button class="btn btn-primary" (click)="abrirModal()">Editar Consulta</button>
+    }
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <app-loading-spinner />
+  } @else if (consulta(); as c) {
+    <div class="alert alert-warning">
+      <div>
+        <strong>¡IMPORTANTE!</strong> Toda modificación posterior a la consulta registra obligatoriamente: información anterior,
+        información nueva, médico editor, fecha/hora y motivo de modificación. La información previa
+        <strong>nunca se elimina</strong> de la bitácora de auditoría.
+        @if (!puedeModificar()) {
+          Esta consulta solo puede ser modificada por el médico que la atendió.
+        }
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Consulta #{{ c.id }} — Paciente: {{ c.nombrePaciente }}</h3>
+        <span class="badge badge-success">Estado: Atendido</span>
+      </div>
+      <p style="font-size:14px; margin-bottom:16px;">
+        <strong>Fecha de Atención:</strong> {{ c.fecha }} {{ c.hora | hora12 }} | <strong>Médico:</strong> {{ c.nombreMedico }}
+        | <a [routerLink]="['/expedientes', c.idPaciente]">Ver expediente</a>
+      </p>
+
+      @if (c.signosVitalesRequestDTO; as sv) {
+        <div class="vitals-grid" style="margin-bottom:16px;">
+          <div class="vital-box"><div class="vital-title">Peso</div><div class="vital-value">{{ sv.peso }} kg</div></div>
+          <div class="vital-box"><div class="vital-title">Altura</div><div class="vital-value">{{ sv.altura }} cm</div></div>
+          <div class="vital-box"><div class="vital-title">P. Sistólica</div><div class="vital-value">{{ sv.presionSistolica }} mmHg</div></div>
+          <div class="vital-box"><div class="vital-title">P. Diastólica</div><div class="vital-value">{{ sv.presionDiastolica }} mmHg</div></div>
+          <div class="vital-box"><div class="vital-title">Temperatura</div><div class="vital-value">{{ sv.temperatura }} °C</div></div>
+        </div>
+      }
+
+      <p><strong>Motivo de consulta:</strong> {{ c.motivoConsulta }}</p>
+      <p><strong>Diagnóstico:</strong> {{ c.diagnostico }}</p>
+      <p style="white-space:pre-line;"><strong>Tratamiento:</strong> {{ c.tratamiento }}</p>
+      @if (c.observaciones) {
+        <p style="white-space:pre-line;"><strong>Observaciones:</strong> {{ c.observaciones }}</p>
+      }
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Bitácora de Auditoría</h3>
+        <span class="badge badge-neutral">{{ auditorias().length }} Modificaciones</span>
+      </div>
+      @for (auditoria of auditorias(); track auditoria.id) {
+        <div class="card" style="border:1px solid var(--color-primary-muted);">
+          <div style="font-size:13px; margin-bottom:10px;">
+            <strong>Motivo de modificación:</strong> {{ auditoria.motivoModificacion }}
+            <div style="font-size:11px; color:var(--color-text-muted); margin-top:4px;">
+              Modificado por {{ auditoria.nombreUsuario }} el {{ auditoria.fechaModificacion.replace('T', ' ').slice(0, 16) }}
+            </div>
+          </div>
+          <div class="diff-grid">
+            <div class="diff-box-old">
+              <span class="badge badge-danger" style="margin-bottom:8px;">Información Anterior</span>
+              @for (cambio of cambiosDeAuditoria(auditoria); track cambio.campo) {
+                <p><strong>{{ cambio.campo }}:</strong> {{ cambio.anterior }}</p>
+              }
+            </div>
+            <div class="diff-box-new">
+              <span class="badge badge-success" style="margin-bottom:8px;">Información Nueva</span>
+              @for (cambio of cambiosDeAuditoria(auditoria); track cambio.campo) {
+                <p><strong>{{ cambio.campo }}:</strong> {{ cambio.nuevo }}</p>
+              }
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <p style="font-size:13px; color:var(--color-text-muted);">Esta consulta no ha sido modificada.</p>
+      }
+    </div>
+
+    @if (modalAbierto()) {
+      <app-modificar-consulta-modal
+        [consulta]="c"
+        [motivos]="motivos()"
+        [error]="errorFormulario()"
+        [guardando]="guardando()"
+        (guardar)="guardar($event)"
+        (cerrar)="modalAbierto.set(false)"
+      />
+    }
+  }
+</div>

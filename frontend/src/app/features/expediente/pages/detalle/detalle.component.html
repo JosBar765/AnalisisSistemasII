@@ -1,0 +1,120 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Expediente clínico</h1>
+    <p class="page-header-subtitle">Historial de consultas, signos vitales y documentos adjuntos</p>
+  </div>
+  <div class="top-actions">
+    <a routerLink="/expedientes" class="btn btn-secondary">Buscar otro paciente</a>
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <app-loading-spinner />
+  } @else if (expediente(); as e) {
+    <div class="patient-summary-header">
+      <h2 style="color:var(--color-primary-dark); font-size:22px; font-weight:800;">
+        {{ e.pacienteResponseDTO | nombreCompleto }}
+      </h2>
+      <p style="font-size:14px; color:var(--color-text-muted);">
+        DPI: {{ e.pacienteResponseDTO.dpi }} | Edad: {{ e.pacienteResponseDTO.fechaNacimiento | edad }} | Tel:
+        {{ e.pacienteResponseDTO.telefono }} | {{ e.pacienteResponseDTO.direccion }}
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Últimos Signos Vitales Registrados</h3>
+        @if (ultimaConSignos(); as ultima) {
+          <span class="badge badge-neutral">Fecha: {{ ultima.fecha }}</span>
+        }
+      </div>
+      @if (ultimaConSignos(); as ultima) {
+        <div class="vitals-grid">
+          <div class="vital-box"><div class="vital-title">Peso</div><div class="vital-value">{{ ultima.signosVitalesRequestDTO!.peso }} kg</div></div>
+          <div class="vital-box"><div class="vital-title">Altura</div><div class="vital-value">{{ ultima.signosVitalesRequestDTO!.altura }} cm</div></div>
+          <div class="vital-box"><div class="vital-title">P. Sistólica</div><div class="vital-value">{{ ultima.signosVitalesRequestDTO!.presionSistolica }} mmHg</div></div>
+          <div class="vital-box"><div class="vital-title">P. Diastólica</div><div class="vital-value">{{ ultima.signosVitalesRequestDTO!.presionDiastolica }} mmHg</div></div>
+          <div class="vital-box"><div class="vital-title">Temperatura</div><div class="vital-value">{{ ultima.signosVitalesRequestDTO!.temperatura }} °C</div></div>
+        </div>
+      } @else {
+        <p style="font-size:13px; color:var(--color-text-muted);">El paciente aún no tiene signos vitales registrados.</p>
+      }
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Historial de Consultas Médicas y Diagnósticos</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Fecha Consulta</th>
+              <th>Médico Tratante</th>
+              <th>Motivo de Consulta</th>
+              <th>Diagnóstico</th>
+              <th>Tratamiento Recetado</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (consulta of e.historialConsultasResponseDTO; track consulta.id) {
+              <tr>
+                <td><strong>{{ consulta.fecha }}</strong> {{ consulta.hora | hora12 }}</td>
+                <td>{{ consulta.nombreMedico }}</td>
+                <td>{{ consulta.motivoConsulta }}</td>
+                <td>{{ consulta.diagnostico }}</td>
+                <td style="white-space:pre-line;">{{ consulta.tratamiento }}</td>
+                <td><a [routerLink]="['/consultas', consulta.id]" class="btn btn-secondary btn-sm">Ver</a></td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="6">El paciente no tiene consultas registradas.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Documentos Clínicos Pertenecientes al Paciente</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Documento</th>
+              <th>Categoría</th>
+              <th>Fecha Carga</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (documento of e.documentosClinicosResponseDTO; track documento.id) {
+              <tr>
+                <td>{{ documento.nombre }}</td>
+                <td><span class="badge badge-info">{{ documento.categoriaDocumentoResponseDTO.nombre }}</span></td>
+                <td>{{ documento.fechaCarga.slice(0, 10) }}</td>
+                <td>
+                  <button class="btn btn-secondary btn-sm" (click)="ver(documento)">Ver Documento</button>
+                  <button class="btn btn-outline-primary btn-sm" (click)="descargar(documento)">Descargar</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="4">El paciente no tiene documentos cargados.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

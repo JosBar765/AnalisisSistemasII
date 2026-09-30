@@ -1,0 +1,61 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Expedientes clínicos</h1>
+    <p class="page-header-subtitle">Busque un paciente para consultar su historial clínico y documentos</p>
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Buscador de Pacientes</h3>
+      <input
+        type="text"
+        class="form-control"
+        style="width:300px;"
+        placeholder="Buscar por DPI, nombre o teléfono..."
+        [value]="busqueda()"
+        (input)="busqueda.set($any($event.target).value)"
+      />
+    </div>
+
+    @if (cargando()) {
+      <app-loading-spinner />
+    } @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>DPI / Documento</th>
+              <th>Nombre Completo</th>
+              <th>Edad</th>
+              <th>Teléfono</th>
+              <th>Expediente</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (paciente of pacientesFiltrados(); track paciente.id) {
+              <tr>
+                <td><strong>{{ paciente.dpi }}</strong></td>
+                <td>{{ paciente | nombreCompleto }}</td>
+                <td>{{ paciente.fechaNacimiento | edad }}</td>
+                <td>{{ paciente.telefono }}</td>
+                <td><a [routerLink]="['/expedientes', paciente.id]" class="btn btn-primary btn-sm">Ver Expediente</a></td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="5">
+                  {{ busqueda() ? 'No hay pacientes que coincidan con la búsqueda.' : 'No hay pacientes registrados.' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

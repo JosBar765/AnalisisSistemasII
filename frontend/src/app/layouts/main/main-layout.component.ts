@@ -1,6 +1,19 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Rol } from '../../core/models/usuario-auth.model';
 import { AuthService } from '../../core/services/auth.service';
+
+const PANEL: Record<Rol, string> = {
+  ADMINISTRADOR: 'Panel Admin',
+  SECRETARIA: 'Recepción',
+  MEDICO: 'Panel Médico',
+};
+
+const ROL: Record<Rol, string> = {
+  ADMINISTRADOR: 'Administrador',
+  SECRETARIA: 'Secretaria',
+  MEDICO: 'Médico',
+};
 
 @Component({
   selector: 'app-main-layout',
@@ -14,6 +27,9 @@ export class MainLayoutComponent {
 
   readonly usuario = this.auth.usuario;
   readonly esAdmin = computed(() => this.usuario()?.rol === 'ADMINISTRADOR');
+  readonly esMedico = computed(() => this.usuario()?.rol === 'MEDICO');
+  readonly etiquetaPanel = computed(() => PANEL[this.usuario()?.rol ?? 'SECRETARIA']);
+  readonly etiquetaRol = computed(() => ROL[this.usuario()?.rol ?? 'SECRETARIA']);
   readonly iniciales = computed(() =>
     (this.usuario()?.nombre ?? '')
       .split(' ')
