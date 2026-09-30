@@ -56,7 +56,7 @@ export class WebSocketService {
     }
     this.cierreIntencional = false;
 
-    const socket = new WebSocket(environment.apiUrl);
+    const socket = new WebSocket(environment.wsUrl);
     this.socket = socket;
 
     socket.onopen = () => socket.send(token);
