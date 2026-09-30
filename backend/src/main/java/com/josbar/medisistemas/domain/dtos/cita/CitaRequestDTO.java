@@ -1,5 +1,6 @@
 package com.josbar.medisistemas.domain.dtos.cita;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,9 +14,13 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @Builder
 public class CitaRequestDTO {
+    @NotNull
     private Integer idMedico;
+    @NotNull
     private Integer idPaciente;
 
+    @NotNull
     private LocalDate fecha;
+    @NotNull
     private LocalTime hora;
 }

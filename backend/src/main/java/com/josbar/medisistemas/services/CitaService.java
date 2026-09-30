@@ -10,7 +10,10 @@ public interface CitaService {
     CitaEntity programar(CitaEntity entity);
     List<HorarioDisponibleResponseDTO> obtenerHorariosDisponibles(Integer idMedico, LocalDate fecha);
     List<CitaEntity> obtenerAgendaDiaria(LocalDate fecha);
+    List<CitaEntity> obtenerAgendaPorRango(LocalDate desde, LocalDate hasta);
     List<CitaEntity> obtenerAgendaPorMedico(Integer idMedico, LocalDate fecha);
     CitaEntity cancelar(Integer id);
     CitaEntity reprogramar(Integer id, CitaEntity nuevaInformacion);
+    CitaEntity registrarLlegada(Integer id);
+    CitaEntity solicitarLlamado(Integer id, Integer idMedico);
 }

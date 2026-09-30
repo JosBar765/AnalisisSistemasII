@@ -28,6 +28,12 @@ public class AuditoriaController {
         return new ResponseEntity<>(auditoriaService.obtenerAuditoriasPorConsulta(idConsulta), HttpStatus.OK);
     }
 
+    @GetMapping("/documentos/paciente/{idPaciente}")
+    public ResponseEntity<List<AuditoriaDocumentoResponseDTO>> listarAuditoriasDocumentosPaciente(
+            @PathVariable("idPaciente") Integer idPaciente) {
+        return new ResponseEntity<>(auditoriaService.obtenerAuditoriasDocumentosPorPaciente(idPaciente), HttpStatus.OK);
+    }
+
     @GetMapping("/documentos/{idDocumento}")
     public ResponseEntity<List<AuditoriaDocumentoResponseDTO>> listarAuditoriasDocumento(
             @PathVariable("idDocumento") Integer idDocumento) {

@@ -36,6 +36,13 @@ public class AuditoriaServiceImpl implements AuditoriaService {
     }
 
     @Override
+    public List<AuditoriaDocumentoResponseDTO> obtenerAuditoriasDocumentosPorPaciente(Integer idPaciente) {
+        return auditoriaDocumentoRepository.findByDocumentoEntityPacienteEntityIdOrderByFechaModificacionDesc(idPaciente).stream()
+                .map(auditoriaDocumentoMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<AuditoriaDocumentoResponseDTO> obtenerAuditoriasPorDocumento(Integer idDocumento) {
         return auditoriaDocumentoRepository.findByDocumentoEntityId(idDocumento).stream()
                 .map(auditoriaDocumentoMapper::toResponse)

@@ -1,6 +1,5 @@
 package com.josbar.medisistemas.mappers.impl;
 
-import com.josbar.medisistemas.domain.dtos.documento.ActualizarDocumentoRequestDTO;
 import com.josbar.medisistemas.domain.dtos.documento.DocumentoResponseDTO;
 import com.josbar.medisistemas.domain.dtos.documento.SubirDocumentoRequestDTO;
 import com.josbar.medisistemas.domain.entities.CategoriaDocumentoEntity;
@@ -16,6 +15,7 @@ public class DocumentoMapper implements Mapper<DocumentoEntity, SubirDocumentoRe
 
     private final CatalogoMapper catalogoMapper;
 
+    /** Solo referencia paciente y categoría; el nombre, la URL y el usuario de carga los asigna el Service. */
     @Override
     public DocumentoEntity toEntity(SubirDocumentoRequestDTO request) {
         if(request == null) return null;
@@ -28,16 +28,6 @@ public class DocumentoMapper implements Mapper<DocumentoEntity, SubirDocumentoRe
         CategoriaDocumentoEntity categoria = new CategoriaDocumentoEntity();
         categoria.setId(request.getIdCategoriaDocumento());
         entity.setCategoriaDocumentoEntity(categoria);
-
-        entity.setNombre(request.getNombre());
-        entity.setUrl(request.getUrl());
-
-        // Temporal: mientras no exista JWT, idUsuarioCarga se recibe explícitamente en el Request.
-        if (request.getIdUsuarioCarga() != null) {
-            var usuarioCarga = new com.josbar.medisistemas.domain.entities.UsuarioEntity();
-            usuarioCarga.setId(request.getIdUsuarioCarga());
-            entity.setUsuarioEntityCarga(usuarioCarga);
-        }
         return entity;
     }
 
@@ -53,16 +43,5 @@ public class DocumentoMapper implements Mapper<DocumentoEntity, SubirDocumentoRe
         dto.setFechaCarga(entity.getFechaCarga());
         dto.setCategoriaDocumentoResponseDTO(catalogoMapper.toResponse(entity.getCategoriaDocumentoEntity()));
         return dto;
-    }
-
-    public void updateEntity(ActualizarDocumentoRequestDTO request, DocumentoEntity entity) {
-        if (request == null || entity == null) return;
-
-        if (request.getNombre() != null && !request.getNombre().trim().isEmpty()) {
-            entity.setNombre(request.getNombre());
-        }
-        if (request.getUrl() != null && !request.getUrl().trim().isEmpty()) {
-            entity.setUrl(request.getUrl());
-        }
     }
 }

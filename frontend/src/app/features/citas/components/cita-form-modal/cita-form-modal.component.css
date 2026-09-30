@@ -1,0 +1,40 @@
+.time-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.time-slot-btn {
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text-main);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.time-slot-btn:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-bg-light);
+}
+
+.time-slot-btn.selected {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary-dark);
+}
+
+.mensaje-horarios {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.solo-lectura {
+  background-color: var(--color-bg-light);
+}

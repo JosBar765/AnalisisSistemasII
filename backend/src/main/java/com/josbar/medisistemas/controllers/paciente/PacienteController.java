@@ -5,6 +5,7 @@ import com.josbar.medisistemas.domain.dtos.paciente.PacienteResponseDTO;
 import com.josbar.medisistemas.domain.entities.PacienteEntity;
 import com.josbar.medisistemas.mappers.impl.PacienteMapper;
 import com.josbar.medisistemas.services.PacienteService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class PacienteController {
     }
 
     @PostMapping
-    public ResponseEntity<PacienteResponseDTO> registrarPaciente(@RequestBody PacienteRequestDTO request) {
+    public ResponseEntity<PacienteResponseDTO> registrarPaciente(@Valid @RequestBody PacienteRequestDTO request) {
         PacienteEntity saved = pacienteService.save(pacienteMapper.toEntity(request));
         return new ResponseEntity<>(pacienteMapper.toResponse(saved), HttpStatus.CREATED);
     }
@@ -55,7 +56,7 @@ public class PacienteController {
     @PutMapping("/{id}")
     public ResponseEntity<PacienteResponseDTO> modificarPaciente(
             @PathVariable("id") Integer id,
-            @RequestBody PacienteRequestDTO request) {
+            @Valid @RequestBody PacienteRequestDTO request) {
         PacienteEntity updated = pacienteService.modificar(id, request);
         return new ResponseEntity<>(pacienteMapper.toResponse(updated), HttpStatus.OK);
     }

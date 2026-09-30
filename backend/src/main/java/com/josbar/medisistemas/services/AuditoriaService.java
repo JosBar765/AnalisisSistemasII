@@ -8,4 +8,5 @@ import java.util.List;
 public interface AuditoriaService {
     List<AuditoriaConsultaResponseDTO> obtenerAuditoriasPorConsulta(Integer idConsulta);
     List<AuditoriaDocumentoResponseDTO> obtenerAuditoriasPorDocumento(Integer idDocumento);
+    List<AuditoriaDocumentoResponseDTO> obtenerAuditoriasDocumentosPorPaciente(Integer idPaciente);
 }

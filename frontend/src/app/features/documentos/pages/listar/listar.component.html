@@ -1,0 +1,131 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Carga de archivos al expediente</h1>
+  </div>
+  <div class="top-actions">
+    <button class="btn btn-primary" [disabled]="!paciente()" (click)="subiendo.set(true)">
+      <svg class="svg-icon" viewBox="0 0 24 24">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      Subir Nuevo Documento
+    </button>
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <div class="card" style="background-color:var(--color-bg-light);">
+    <div class="form-group" style="margin-bottom:0;">
+      <label class="form-label">Paciente Seleccionado:</label>
+      <select
+        class="form-control"
+        style="font-weight:700; color:var(--color-primary-dark);"
+        (change)="seleccionarPaciente(+$any($event.target).value || null)"
+      >
+        <option value="" [selected]="!idPaciente()">Seleccione un paciente...</option>
+        @for (p of pacientes(); track p.id) {
+          <option [value]="p.id" [selected]="p.id === idPaciente()">{{ p | nombreCompleto }} (DPI: {{ p.dpi }})</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (paciente(); as pac) {
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Documentos Activos en Expediente: {{ pac | nombreCompleto }}</h3>
+      </div>
+
+      @if (cargando()) {
+        <app-loading-spinner />
+      } @else {
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nombre Documento</th>
+                <th>Categoría</th>
+                <th>Fecha de Carga</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (documento of documentos(); track documento.id) {
+                <tr>
+                  <td><strong>{{ documento.nombre }}</strong></td>
+                  <td><span class="badge badge-info">{{ documento.categoriaDocumentoResponseDTO.nombre }}</span></td>
+                  <td>{{ documento.fechaCarga | date: 'dd/MM/yyyy hh:mm a' }}</td>
+                  <td>
+                    <button class="btn btn-secondary btn-sm" (click)="ver(documento)">Ver</button>
+                    <button class="btn btn-primary btn-sm" (click)="documentoReemplazando.set(documento)">Reemplazar</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr class="empty-row">
+                  <td colspan="4">Este paciente no tiene documentos registrados.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Bitácora de Auditoría de Documentos</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Fecha y Hora</th>
+              <th>Usuario Operador</th>
+              <th>Motivo de Cambio</th>
+              <th>Archivo Anterior (Inactivo)</th>
+              <th>Nuevo Archivo Activo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (auditoria of auditorias(); track auditoria.id) {
+              <tr>
+                <td>{{ auditoria.fechaModificacion | date: 'dd/MM/yyyy hh:mm a' }}</td>
+                <td>{{ auditoria.nombreUsuario }}</td>
+                <td>{{ auditoria.motivoModificacion }}</td>
+                <td>
+                  <span style="font-size:11px; text-decoration:line-through; color:var(--color-text-muted);">
+                    {{ auditoria.nombreAnterior }}
+                  </span>
+                </td>
+                <td>
+                  <span style="font-size:11px; color:var(--color-success); font-weight:700;">{{ auditoria.nombreNuevo }}</span>
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="5">Aún no hay actualizaciones de documentos para este paciente.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+@if (subiendo() && paciente(); as pac) {
+  <app-subir-documento-modal [paciente]="pac" (subido)="alTerminarCarga()" (cerrar)="subiendo.set(false)" />
+}
+
+@if (documentoReemplazando(); as documento) {
+  <app-reemplazar-documento-modal
+    [documento]="documento"
+    (reemplazado)="alTerminarCarga()"
+    (cerrar)="documentoReemplazando.set(null)"
+  />
+}

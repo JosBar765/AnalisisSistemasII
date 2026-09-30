@@ -17,7 +17,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 /**
  * Autenticación stateless con JWT. El rol viaja en el claim "rol" y se traduce a
  * la autoridad ROLE_<rol>. Aquí solo se protege lo que ya está definido en el análisis
- * (módulo de administración); el resto exige estar autenticado hasta que cada módulo
+ * (administración y secretaria); el resto exige estar autenticado hasta que cada módulo
  * defina sus reglas por rol.
  */
 @Configuration
@@ -25,6 +25,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfig {
 
     private static final String ADMINISTRADOR = "ADMINISTRADOR";
+    private static final String SECRETARIA = "SECRETARIA";
+    private static final String MEDICO = "MEDICO";
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
@@ -35,6 +37,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/auth/login").permitAll()
+                        // El handshake es público; el WebSocket valida el JWT en su primer mensaje.
+                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/citas/*/llamado").hasRole(MEDICO)
+                        // Consulta: secretaria y médico. Registro y modificación: solo secretaria.
+                        .requestMatchers(HttpMethod.GET, "/pacientes/**", "/citas/**", "/documentos/**",
+                                "/auditorias/documentos/**").hasAnyRole(SECRETARIA, MEDICO)
+                        .requestMatchers("/pacientes/**", "/citas/**", "/documentos/**").hasRole(SECRETARIA)
+                        // La secretaria necesita ver los médicos para programar citas.
+                        .requestMatchers(HttpMethod.GET, "/medicos/**").hasAnyRole(ADMINISTRADOR, SECRETARIA)
                         .requestMatchers("/usuarios/**", "/medicos/**", "/especialidades/**",
                                 "/jornadas/**", "/dashboard/**", "/categorias-documento/**")
                         .hasRole(ADMINISTRADOR)

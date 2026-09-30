@@ -1,0 +1,125 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Recepción — Cola de Entrada</h1>
+    <p class="page-header-subtitle">Control de llegada de pacientes, gestión de citas y atención de recepción</p>
+  </div>
+  <div class="top-actions">
+    <a routerLink="/citas" [queryParams]="{ nueva: 1 }" class="btn btn-primary">
+      <svg class="svg-icon" viewBox="0 0 24 24">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Agendar Nueva Cita
+    </a>
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <app-loading-spinner />
+  } @else {
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon-wrapper">
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="metric-data">
+          <span class="metric-value">{{ citasVigentes().length }}</span>
+          <span class="metric-label">Citas Programadas Hoy</span>
+        </div>
+      </div>
+      <div class="metric-card" style="border-left-color: var(--color-warning);">
+        <div class="metric-icon-wrapper" style="color:var(--color-warning);">
+          <svg class="svg-icon" viewBox="0 0 24 24">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          </svg>
+        </div>
+        <div class="metric-data">
+          <span class="metric-value">{{ llamados().length }}</span>
+          <span class="metric-label">Llamada Solicitada por Médico</span>
+        </div>
+      </div>
+    </div>
+
+    @for (cita of llamados(); track cita.id) {
+      <div class="card" style="border-left:5px solid var(--color-warning); background-color: var(--color-warning-bg);">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+          <div>
+            <span class="badge badge-warning" style="margin-bottom:6px;">Solicitud de Llamado de Médico</span>
+            <h3 style="color:var(--color-primary-dark); font-size:16px;">
+              {{ cita.medicoResponseDTO.usuarioResponseDTO | nombreCompleto }} solicita llamar al siguiente paciente
+            </h3>
+            <p style="font-size:13px; color:var(--color-text-muted);">
+              Paciente presente:
+              <strong>{{ cita.pacienteResponseDTO | nombreCompleto }} (Cita {{ cita.hora | hora12 }})</strong>
+            </p>
+          </div>
+          <a routerLink="/llamador" class="btn btn-primary">Abrir Pantalla de Llamado</a>
+        </div>
+      </div>
+    }
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Pacientes del Día y Orden Real de Cola</h3>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Turno Cola</th>
+              <th>Hora Est. Cita</th>
+              <th>Paciente</th>
+              <th>Médico</th>
+              <th>Presencia en Sala</th>
+              <th>Estado Cita</th>
+              <th>Acción Recepción</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (fila of cola(); track fila.cita.id) {
+              <tr>
+                <td>@if (fila.turno) { <strong>#{{ fila.turno }}</strong> } @else { — }</td>
+                <td>{{ fila.cita.hora | hora12 }}</td>
+                <td>{{ fila.cita.pacienteResponseDTO | nombreCompleto }}</td>
+                <td>{{ fila.cita.medicoResponseDTO.usuarioResponseDTO | nombreCompleto }}</td>
+                <td>
+                  @if (fila.cita.horaLlegada) {
+                    <span class="badge badge-success">Presente (Llegó {{ fila.cita.horaLlegada | hora12 }})</span>
+                  } @else if (estaEnEspera(fila.cita)) {
+                    <span class="badge badge-danger">Ausente / No ha llegado</span>
+                  } @else {
+                    —
+                  }
+                </td>
+                <td><span [class]="'badge ' + claseEstado(fila.cita)">{{ fila.cita.estadoCitaResponseDTO.nombre }}</span></td>
+                <td>
+                  @if (!estaEnEspera(fila.cita)) {
+                    <button class="btn btn-secondary btn-sm" disabled style="opacity:0.5;">Finalizada</button>
+                  } @else if (!fila.cita.horaLlegada) {
+                    <button class="btn btn-secondary btn-sm" (click)="marcarLlegada(fila.cita)">Marcar Llegada</button>
+                  } @else if (fila.cita.horaSolicitudLlamado) {
+                    <a routerLink="/llamador" class="btn btn-primary btn-sm">Llamar Paciente</a>
+                  } @else {
+                    <span style="font-size:12px; color:var(--color-text-muted);">Esperando llamado del médico</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="7">No hay citas programadas para hoy.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

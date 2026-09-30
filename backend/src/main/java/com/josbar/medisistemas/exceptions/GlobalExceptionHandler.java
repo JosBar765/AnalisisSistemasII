@@ -6,8 +6,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -23,6 +25,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessRuleException.class)
     public ResponseEntity<ErrorResponseDTO> handleBusinessRule(BusinessRuleException ex, HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(AlmacenamientoException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAlmacenamiento(AlmacenamientoException ex, HttpServletRequest request) {
+        return build(HttpStatus.SERVICE_UNAVAILABLE, "El almacenamiento de documentos no está disponible en este momento.", request);
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
@@ -41,6 +48,11 @@ public class GlobalExceptionHandler {
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .collect(Collectors.joining("; "));
         return build(HttpStatus.BAD_REQUEST, message, request);
+    }
+
+    @ExceptionHandler({MissingServletRequestPartException.class, MissingServletRequestParameterException.class})
+    public ResponseEntity<ErrorResponseDTO> handleMissingRequestData(Exception ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, "Falta información requerida en la solicitud (archivo o parámetro).", request);
     }
 
     @ExceptionHandler(Exception.class)

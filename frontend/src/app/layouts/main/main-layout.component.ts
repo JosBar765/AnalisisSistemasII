@@ -13,6 +13,7 @@ export class MainLayoutComponent {
   private readonly auth = inject(AuthService);
 
   readonly usuario = this.auth.usuario;
+  readonly esAdmin = computed(() => this.usuario()?.rol === 'ADMINISTRADOR');
   readonly iniciales = computed(() =>
     (this.usuario()?.nombre ?? '')
       .split(' ')

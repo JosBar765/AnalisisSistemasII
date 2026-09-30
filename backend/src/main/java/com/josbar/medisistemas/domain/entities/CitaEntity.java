@@ -38,4 +38,10 @@ public class CitaEntity {
 
     @Column(nullable = false)
     private LocalTime hora;
+
+    @Column(name = "hora_llegada")
+    private LocalTime horaLlegada;
+
+    @Column(name = "hora_solicitud_llamado")
+    private LocalTime horaSolicitudLlamado;
 }

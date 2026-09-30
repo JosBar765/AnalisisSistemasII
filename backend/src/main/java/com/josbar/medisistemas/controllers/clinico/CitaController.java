@@ -5,8 +5,11 @@ import com.josbar.medisistemas.domain.dtos.cita.CitaResponseDTO;
 import com.josbar.medisistemas.domain.dtos.cita.HorarioDisponibleResponseDTO;
 import com.josbar.medisistemas.mappers.impl.CitaMapper;
 import com.josbar.medisistemas.services.CitaService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -26,7 +29,7 @@ public class CitaController {
     }
 
     @PostMapping
-    public ResponseEntity<CitaResponseDTO> programarCita(@RequestBody CitaRequestDTO request) {
+    public ResponseEntity<CitaResponseDTO> programarCita(@Valid @RequestBody CitaRequestDTO request) {
         var saved = citaService.programar(citaMapper.toEntity(request));
         return new ResponseEntity<>(citaMapper.toResponse(saved), HttpStatus.CREATED);
     }
@@ -42,6 +45,16 @@ public class CitaController {
     @GetMapping("/agenda-diaria")
     public ResponseEntity<List<CitaResponseDTO>> consultarAgendaDiaria(@RequestParam LocalDate fecha) {
         List<CitaResponseDTO> agenda = citaService.obtenerAgendaDiaria(fecha).stream()
+                .map(citaMapper::toResponse)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(agenda, HttpStatus.OK);
+    }
+
+    @GetMapping("/agenda")
+    public ResponseEntity<List<CitaResponseDTO>> consultarAgendaPorRango(
+            @RequestParam LocalDate desde,
+            @RequestParam LocalDate hasta) {
+        List<CitaResponseDTO> agenda = citaService.obtenerAgendaPorRango(desde, hasta).stream()
                 .map(citaMapper::toResponse)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(agenda, HttpStatus.OK);
@@ -66,8 +79,22 @@ public class CitaController {
     @PutMapping("/{id}/reprogramar")
     public ResponseEntity<CitaResponseDTO> reprogramarCita(
             @PathVariable("id") Integer id,
-            @RequestBody CitaRequestDTO request) {
+            @Valid @RequestBody CitaRequestDTO request) {
         var reprogrammed = citaService.reprogramar(id, citaMapper.toEntity(request));
         return new ResponseEntity<>(citaMapper.toResponse(reprogrammed), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/llegada")
+    public ResponseEntity<CitaResponseDTO> registrarLlegada(@PathVariable("id") Integer id) {
+        var cita = citaService.registrarLlegada(id);
+        return new ResponseEntity<>(citaMapper.toResponse(cita), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/llamado")
+    public ResponseEntity<CitaResponseDTO> solicitarLlamado(
+            @PathVariable("id") Integer id,
+            @AuthenticationPrincipal Jwt jwt) {
+        var cita = citaService.solicitarLlamado(id, Integer.valueOf(jwt.getSubject()));
+        return new ResponseEntity<>(citaMapper.toResponse(cita), HttpStatus.OK);
     }
 }

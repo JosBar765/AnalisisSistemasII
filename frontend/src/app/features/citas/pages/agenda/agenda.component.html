@@ -1,0 +1,141 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Horarios y jornadas</h1>
+  </div>
+  <div class="top-actions">
+    <button class="btn btn-primary" (click)="abrirNueva()">
+      <svg class="svg-icon" viewBox="0 0 24 24">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Programar Cita Nueva
+    </button>
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">{{ modo() === 'mes' ? 'Agenda Mensual de Citas Programadas' : 'Agenda Diaria de Citas Programadas' }}</h3>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <div style="display:flex; gap:4px;">
+          <button [class]="'btn btn-sm ' + (modo() === 'dia' ? 'btn-primary' : 'btn-secondary')" (click)="cambiarModo('dia')">Día</button>
+          <button [class]="'btn btn-sm ' + (modo() === 'mes' ? 'btn-primary' : 'btn-secondary')" (click)="cambiarModo('mes')">Mes</button>
+        </div>
+        @if (modo() === 'dia') {
+          <input
+            type="date"
+            class="form-control"
+            style="width:160px; font-size:13px;"
+            [value]="fecha()"
+            (change)="cambiarFecha($any($event.target).value)"
+          />
+        } @else {
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button class="btn btn-secondary btn-sm" aria-label="Mes anterior" (click)="cambiarMes(-1)">&lt;</button>
+            <strong style="min-width:150px; text-align:center; font-size:13px;">{{ etiquetaMes() }}</strong>
+            <button class="btn btn-secondary btn-sm" aria-label="Mes siguiente" (click)="cambiarMes(1)">&gt;</button>
+          </div>
+        }
+        <select
+          class="form-control"
+          style="width:240px; font-size:13px;"
+          (change)="medicoFiltro.set(+$any($event.target).value || null)"
+        >
+          <option value="">Todos los Médicos</option>
+          @for (medico of medicos(); track medico.id) {
+            <option [value]="medico.id">
+              {{ medico.usuarioResponseDTO | nombreCompleto }} ({{ medico.especialidadResponseDTO.nombre }})
+            </option>
+          }
+        </select>
+      </div>
+    </div>
+
+    @if (cargando()) {
+      <app-loading-spinner />
+    } @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              @if (modo() === 'mes') {
+                <th>Fecha</th>
+              }
+              <th>Hora Estimada</th>
+              <th>Paciente</th>
+              <th>Médico / Especialidad</th>
+              <th>Estado Cita</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (cita of citasFiltradas(); track cita.id) {
+              <tr>
+                @if (modo() === 'mes') {
+                  <td>{{ cita.fecha }}</td>
+                }
+                <td><strong>{{ cita.hora | hora12 }}</strong></td>
+                <td>{{ cita.pacienteResponseDTO | nombreCompleto }}</td>
+                <td>
+                  {{ cita.medicoResponseDTO.usuarioResponseDTO | nombreCompleto }}
+                  ({{ cita.medicoResponseDTO.especialidadResponseDTO.nombre }})
+                </td>
+                <td><span [class]="'badge ' + claseEstado(cita)">{{ cita.estadoCitaResponseDTO.nombre }}</span></td>
+                <td>
+                  @if (estaEnEspera(cita)) {
+                    <button class="btn btn-secondary btn-sm" (click)="abrirReprogramar(cita)">Reprogramar</button>
+                    <button class="btn btn-danger btn-sm" (click)="citaPorCancelar.set(cita)">Cancelar</button>
+                  } @else {
+                    <span style="font-size:12px; color:var(--color-text-muted);">Sin acciones disponibles</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td [attr.colspan]="modo() === 'mes' ? 6 : 5">
+                  {{ modo() === 'mes' ? 'No hay citas programadas en este mes.' : 'No hay citas programadas para esta fecha.' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+@if (modalAbierto()) {
+  <app-cita-form-modal
+    [cita]="citaReprogramando()"
+    [fechaInicial]="modo() === 'dia' ? fecha() : ''"
+    [idPacienteInicial]="idPacienteInicial()"
+    (guardada)="alGuardar()"
+    (cerrar)="cerrarModal()"
+  />
+}
+
+@if (citaPorCancelar(); as cita) {
+  <div class="modal-backdrop" (click)="citaPorCancelar.set(null)">
+    <div class="modal-card" style="max-width: 460px;" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">Cancelar Cita</h3>
+        <button class="modal-close" (click)="citaPorCancelar.set(null)">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>
+          ¿Cancelar la cita de <strong>{{ cita.pacienteResponseDTO | nombreCompleto }}</strong> del
+          {{ cita.fecha }} a las {{ cita.hora | hora12 }}? El horario quedará disponible nuevamente.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="citaPorCancelar.set(null)">Conservar Cita</button>
+        <button class="btn btn-danger" (click)="confirmarCancelacion()">Cancelar Cita</button>
+      </div>
+    </div>
+  </div>
+}

@@ -41,6 +41,8 @@ public class CitaMapper implements Mapper<CitaEntity, CitaRequestDTO, CitaRespon
         dto.setId(entity.getId());
         dto.setFecha(entity.getFecha());
         dto.setHora(entity.getHora());
+        dto.setHoraLlegada(entity.getHoraLlegada());
+        dto.setHoraSolicitudLlamado(entity.getHoraSolicitudLlamado());
         dto.setMedicoResponseDTO(medicoMapper.toResponse(entity.getMedicoEntity()));
         dto.setPacienteResponseDTO(pacienteMapper.toResponse(entity.getPacienteEntity()));
         dto.setEstadoCitaResponseDTO(catalogoMapper.toResponse(entity.getEstadoCitaEntity()));

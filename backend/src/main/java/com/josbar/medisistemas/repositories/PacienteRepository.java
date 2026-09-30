@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface PacienteRepository extends CrudRepository<PacienteEntity, Integer> {
     Optional<PacienteEntity> findByDpi(String dpi);
+    boolean existsByDpi(String dpi);
 }

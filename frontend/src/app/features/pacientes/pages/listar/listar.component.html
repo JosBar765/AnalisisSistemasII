@@ -1,0 +1,94 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Registro administrativo</h1>
+  </div>
+  <div class="top-actions">
+    <button class="btn btn-primary" (click)="abrirNuevo()">
+      <svg class="svg-icon" viewBox="0 0 24 24">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Registrar Paciente Nuevo
+    </button>
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Buscador y Directorio de Pacientes</h3>
+      <input
+        type="text"
+        class="form-control"
+        style="width:300px;"
+        placeholder="Buscar por DPI, nombre o teléfono..."
+        [value]="busqueda()"
+        (input)="busqueda.set($any($event.target).value)"
+      />
+    </div>
+
+    @if (cargando()) {
+      <app-loading-spinner />
+    } @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>DPI / Documento</th>
+              <th>Nombre Completo</th>
+              <th>Teléfono / WhatsApp</th>
+              <th>Estado</th>
+              <th>Acciones Administrativas</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (paciente of pacientesFiltrados(); track paciente.id) {
+              <tr>
+                <td><strong>{{ paciente.dpi }}</strong></td>
+                <td>{{ paciente | nombreCompleto }}</td>
+                <td>{{ paciente.telefono }}</td>
+                <td>
+                  @if (paciente.estado) {
+                    <span class="badge badge-success">Activo</span>
+                  } @else {
+                    <span class="badge badge-danger">Inactivo</span>
+                  }
+                </td>
+                <td>
+                  @if (paciente.estado) {
+                    <a routerLink="/citas" [queryParams]="{ idPaciente: paciente.id }" class="btn btn-primary btn-sm">Programar Cita</a>
+                  }
+                  <a routerLink="/documentos" [queryParams]="{ idPaciente: paciente.id }" class="btn btn-secondary btn-sm">Documentos</a>
+                  <button class="btn btn-secondary btn-sm" (click)="abrirEditar(paciente)">Editar Datos</button>
+                  <button class="btn btn-outline-primary btn-sm" (click)="cambiarEstado(paciente)">
+                    {{ paciente.estado ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="5">
+                  {{ busqueda() ? 'No hay pacientes que coincidan con la búsqueda.' : 'No hay pacientes registrados.' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+@if (modalAbierto()) {
+  <app-paciente-form
+    [paciente]="pacienteEditando()"
+    [error]="errorFormulario()"
+    [guardando]="guardando()"
+    (guardar)="guardar($event)"
+    (cerrar)="cerrarModal()"
+  />
+}

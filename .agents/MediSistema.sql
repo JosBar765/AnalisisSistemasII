@@ -62,7 +62,9 @@ CREATE TABLE "Cita" (
   "id_paciente" integer NOT NULL,
   "id_estado_cita" integer NOT NULL,
   "fecha" date NOT NULL,
-  "hora" time NOT NULL
+  "hora" time NOT NULL,
+  "hora_llegada" time,
+  "hora_solicitud_llamado" time
 );
 
 CREATE TABLE "EstadoCita" (
@@ -180,6 +182,8 @@ CREATE INDEX ON "AuditoriaConsulta" ("fecha_modificacion");
 COMMENT ON TABLE "JornadaMedica" IS 'La duracion de la consulta, es en minutos';
 
 COMMENT ON TABLE "Paciente" IS 'El paciente no tiene unique en el telefono';
+
+COMMENT ON TABLE "Cita" IS 'hora_llegada: la secretaria registra que el paciente esta presente. hora_solicitud_llamado: el medico solicita a la secretaria llamar al paciente';
 
 COMMENT ON TABLE "SignosVitales" IS 'Penso en KG y Altura en CM';
 

@@ -1,0 +1,65 @@
+<div class="llamador-pagina">
+  <div class="llamador-contenido">
+    <div class="llamador-encabezado">
+      <h2>MediSistema — Llamador de Pacientes de Recepción</h2>
+      <a routerLink="/inicio" class="btn btn-secondary">Regresar a Inicio</a>
+    </div>
+
+    <div class="caller-screen-container">
+      @if (llamadoActual(); as cita) {
+        <div class="active-caller-card">
+          <span class="badge badge-warning" style="font-size:14px; padding:6px 16px;">FAVOR LLAMAR AL PACIENTE</span>
+          <div class="caller-patient-name">{{ (cita.pacienteResponseDTO | nombreCompleto).toUpperCase() }}</div>
+          <div class="caller-doctor-room">
+            {{ (cita.medicoResponseDTO.usuarioResponseDTO | nombreCompleto).toUpperCase() }} —
+            {{ cita.medicoResponseDTO.especialidadResponseDTO.nombre.toUpperCase() }}
+          </div>
+        </div>
+      } @else {
+        <div class="active-caller-card sin-llamado">
+          <div class="caller-doctor-room">No hay llamados pendientes</div>
+          <p>Cuando un médico solicite llamar a un paciente aparecerá aquí.</p>
+        </div>
+      }
+
+      @if (otrosLlamados().length) {
+        <div class="llamador-seccion">
+          <h3>Otros llamados solicitados:</h3>
+          <div class="llamador-grid">
+            @for (cita of otrosLlamados(); track cita.id) {
+              <div class="llamador-item llamador-item-alerta">
+                <div class="llamador-item-nombre">{{ cita.pacienteResponseDTO | nombreCompleto }}</div>
+                <div class="llamador-item-detalle">
+                  {{ cita.medicoResponseDTO.usuarioResponseDTO | nombreCompleto }}
+                  ({{ cita.medicoResponseDTO.especialidadResponseDTO.nombre }})
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="llamador-seccion">
+        <h3>Siguientes Pacientes en Lista de Espera:</h3>
+        <div class="llamador-grid">
+          @for (fila of siguientes(); track fila.cita.id) {
+            <div class="llamador-item">
+              <div class="llamador-item-turno">Turno #{{ fila.turno }} — Cita {{ fila.cita.hora | hora12 }}</div>
+              <div class="llamador-item-nombre">{{ fila.cita.pacienteResponseDTO | nombreCompleto }}</div>
+              <div class="llamador-item-detalle">
+                {{ fila.cita.medicoResponseDTO.usuarioResponseDTO | nombreCompleto }}
+                ({{ fila.cita.medicoResponseDTO.especialidadResponseDTO.nombre }})
+              </div>
+            </div>
+          } @empty {
+            <div class="llamador-item-detalle">No hay otros pacientes presentes en espera.</div>
+          }
+        </div>
+      </div>
+
+      <div class="llamador-pie">
+        <span>Hora Actual: {{ horaActual().toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' }) }}</span>
+      </div>
+    </div>
+  </div>
+</div>

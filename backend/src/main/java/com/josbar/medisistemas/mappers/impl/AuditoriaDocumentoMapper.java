@@ -37,6 +37,13 @@ public class AuditoriaDocumentoMapper implements Mapper<AuditoriaDocumentoEntity
                         : null
         );
 
+        if (entity.getUsuarioEntity() != null) {
+            dto.setNombreUsuario(entity.getUsuarioEntity().getPrimerNombre() + " " + entity.getUsuarioEntity().getPrimerApellido());
+        }
+        if (entity.getMotivoModificacionDocumentoEntity() != null) {
+            dto.setMotivoModificacion(entity.getMotivoModificacionDocumentoEntity().getMotivoModificacion());
+        }
+
         // Textos de documentos anteriores y nuevos
         dto.setNombreAnterior(entity.getNombreAnterior());
         dto.setUrlAnterior(entity.getUrlAnterior());

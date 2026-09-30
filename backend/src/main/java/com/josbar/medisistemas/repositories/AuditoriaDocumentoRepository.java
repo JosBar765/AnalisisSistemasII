@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface AuditoriaDocumentoRepository extends CrudRepository<AuditoriaDocumentoEntity, Integer> {
     List<AuditoriaDocumentoEntity> findByDocumentoEntityId(Integer idDocumento);
+    List<AuditoriaDocumentoEntity> findByDocumentoEntityPacienteEntityIdOrderByFechaModificacionDesc(Integer idPaciente);
 }

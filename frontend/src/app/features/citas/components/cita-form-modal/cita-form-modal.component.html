@@ -1,0 +1,93 @@
+<div class="modal-backdrop" (click)="cerrar.emit()">
+  <div class="modal-card" style="max-width: 650px;" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ cita() ? 'Reprogramar Cita' : 'Agendar Nueva Cita' }}</h3>
+      <button class="modal-close" (click)="cerrar.emit()">&times;</button>
+    </div>
+    <div class="modal-body">
+      @if (error()) {
+        <div class="alert alert-danger">{{ error() }}</div>
+      }
+
+      <form [formGroup]="form">
+        @if (cita(); as c) {
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Paciente</label>
+              <input type="text" class="form-control solo-lectura" [value]="c.pacienteResponseDTO | nombreCompleto" readonly />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Médico</label>
+              <input type="text" class="form-control solo-lectura" [value]="c.medicoResponseDTO.usuarioResponseDTO | nombreCompleto" readonly />
+            </div>
+          </div>
+        } @else {
+          <div class="form-group">
+            <label class="form-label">Buscar Paciente Registrado</label>
+            <input
+              type="text"
+              class="form-control"
+              style="margin-bottom:8px;"
+              placeholder="Filtrar por DPI o nombre..."
+              [value]="filtroPaciente()"
+              (input)="filtroPaciente.set($any($event.target).value)"
+            />
+            <select class="form-control" formControlName="idPaciente">
+              <option [ngValue]="null">Seleccione paciente...</option>
+              @for (paciente of pacientesFiltrados(); track paciente.id) {
+                <option [ngValue]="paciente.id">{{ paciente | nombreCompleto }} — DPI: {{ paciente.dpi }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Médico</label>
+            <select class="form-control" formControlName="idMedico" (change)="cargarHorarios()">
+              <option [ngValue]="null">Seleccione médico...</option>
+              @for (medico of medicos(); track medico.id) {
+                <option [ngValue]="medico.id">
+                  {{ medico.usuarioResponseDTO | nombreCompleto }} ({{ medico.especialidadResponseDTO.nombre }})
+                </option>
+              }
+            </select>
+          </div>
+        }
+
+        <div class="form-group">
+          <label class="form-label">Fecha de Cita</label>
+          <input type="date" class="form-control" formControlName="fecha" (change)="cargarHorarios()" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Horarios Disponibles Según Jornada Configurada:</label>
+          @if (cargandoHorarios()) {
+            <p class="mensaje-horarios">Consultando horarios...</p>
+          } @else if (!form.value.idMedico || !form.value.fecha) {
+            <p class="mensaje-horarios">Seleccione un médico y una fecha para ver los horarios.</p>
+          } @else if (horarios().length === 0) {
+            <p class="mensaje-horarios">No hay horarios disponibles para el médico en esa fecha.</p>
+          } @else {
+            <div class="time-slot-grid">
+              @for (hora of horarios(); track hora) {
+                <button
+                  type="button"
+                  class="time-slot-btn"
+                  [class.selected]="horaSeleccionada() === hora"
+                  (click)="horaSeleccionada.set(hora)"
+                >
+                  {{ hora | hora12 }}
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="cerrar.emit()">Cancelar</button>
+      <button class="btn btn-primary" [disabled]="form.invalid || !horaSeleccionada() || guardando()" (click)="guardar()">
+        {{ cita() ? 'Guardar Nuevo Horario' : 'Registrar Cita ("En Espera")' }}
+      </button>
+    </div>
+  </div>
+</div>

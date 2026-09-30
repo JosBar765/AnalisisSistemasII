@@ -25,4 +25,7 @@ public class CitaResponseDTO {
 
     private LocalDate fecha;
     private LocalTime hora;
+
+    private LocalTime horaLlegada;
+    private LocalTime horaSolicitudLlamado;
 }

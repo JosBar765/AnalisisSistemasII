@@ -1,14 +1,20 @@
 package com.josbar.medisistemas.controllers.clinico;
 
-import com.josbar.medisistemas.domain.dtos.documento.SubirDocumentoRequestDTO;
 import com.josbar.medisistemas.domain.dtos.documento.ActualizarDocumentoRequestDTO;
 import com.josbar.medisistemas.domain.dtos.documento.DocumentoResponseDTO;
+import com.josbar.medisistemas.domain.dtos.documento.EnlaceDocumentoResponseDTO;
+import com.josbar.medisistemas.domain.dtos.documento.SubirDocumentoRequestDTO;
 import com.josbar.medisistemas.domain.entities.DocumentoEntity;
 import com.josbar.medisistemas.mappers.impl.DocumentoMapper;
 import com.josbar.medisistemas.services.DocumentoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,18 +31,23 @@ public class DocumentoController {
         this.documentoMapper = documentoMapper;
     }
 
-    @PostMapping
-    public ResponseEntity<DocumentoResponseDTO> subirDocumento(@RequestBody SubirDocumentoRequestDTO request) {
-        // En tu service se debe setear el ID del usuarioCarga desde el JWT
-        DocumentoEntity saved = documentoService.subir(documentoMapper.toEntity(request));
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DocumentoResponseDTO> subirDocumento(
+            @RequestPart("archivo") MultipartFile archivo,
+            @Valid @ModelAttribute SubirDocumentoRequestDTO request,
+            @AuthenticationPrincipal Jwt jwt) {
+        DocumentoEntity saved = documentoService.subir(
+                documentoMapper.toEntity(request), archivo, Integer.valueOf(jwt.getSubject()));
         return new ResponseEntity<>(documentoMapper.toResponse(saved), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DocumentoResponseDTO> actualizarDocumento(
             @PathVariable("id") Integer id,
-            @RequestBody ActualizarDocumentoRequestDTO request) {
-        DocumentoEntity updated = documentoService.actualizar(id, request);
+            @RequestPart("archivo") MultipartFile archivo,
+            @Valid @ModelAttribute ActualizarDocumentoRequestDTO request,
+            @AuthenticationPrincipal Jwt jwt) {
+        DocumentoEntity updated = documentoService.actualizar(id, request, archivo, Integer.valueOf(jwt.getSubject()));
         return new ResponseEntity<>(documentoMapper.toResponse(updated), HttpStatus.OK);
     }
 
@@ -46,5 +57,10 @@ public class DocumentoController {
                 .map(documentoMapper::toResponse)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(documentos, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/enlace")
+    public ResponseEntity<EnlaceDocumentoResponseDTO> obtenerEnlaceLectura(@PathVariable("id") Integer id) {
+        return new ResponseEntity<>(new EnlaceDocumentoResponseDTO(documentoService.obtenerEnlaceLectura(id)), HttpStatus.OK);
     }
 }

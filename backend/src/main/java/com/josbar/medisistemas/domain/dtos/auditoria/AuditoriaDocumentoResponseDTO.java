@@ -20,10 +20,12 @@ public class AuditoriaDocumentoResponseDTO {
     private String urlAnterior;
 
     private Integer idUsuario;
+    private String nombreUsuario;
 
     private LocalDateTime fechaModificacion;
 
     private Integer idMotivoModificacionDocumento;
+    private String motivoModificacion;
 
     private String nombreNuevo;
     private String urlNuevo;

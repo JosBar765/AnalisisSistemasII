@@ -12,6 +12,7 @@ const TOKEN_KEY = 'medisistema_token';
 /** Ruta de inicio de cada rol. Se agrega una entrada cuando el módulo del rol exista. */
 const RUTA_INICIO: Partial<Record<Rol, string>> = {
   ADMINISTRADOR: '/admin/dashboard',
+  SECRETARIA: '/inicio',
 };
 
 interface JwtPayload {

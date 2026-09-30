@@ -3,6 +3,7 @@ package com.josbar.medisistemas.services.impl;
 import com.josbar.medisistemas.services.PacienteService;
 import com.josbar.medisistemas.domain.dtos.paciente.PacienteRequestDTO;
 import com.josbar.medisistemas.domain.entities.PacienteEntity;
+import com.josbar.medisistemas.exceptions.BusinessRuleException;
 import com.josbar.medisistemas.exceptions.ResourceNotFoundException;
 import com.josbar.medisistemas.mappers.impl.PacienteMapper;
 import com.josbar.medisistemas.repositories.PacienteRepository;
@@ -25,6 +26,9 @@ public class PacienteServiceImpl implements PacienteService {
     @Override
     @Transactional
     public PacienteEntity save(PacienteEntity entity) {
+        if (pacienteRepository.existsByDpi(entity.getDpi())) {
+            throw new BusinessRuleException("Ya existe un paciente registrado con el DPI " + entity.getDpi() + ".");
+        }
         if (entity.getEstado() == null) {
             entity.setEstado(true);
         }

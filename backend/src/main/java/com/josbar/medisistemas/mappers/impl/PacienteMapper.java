@@ -19,6 +19,7 @@ public class PacienteMapper implements Mapper<PacienteEntity, PacienteRequestDTO
         entity.setPrimerApellido(request.getPrimerApellido());
         entity.setSegundoApellido(request.getSegundoApellido());
         entity.setTelefono(request.getTelefono());
+        entity.setCorreo(request.getCorreo());
         entity.setDireccion(request.getDireccion());
         entity.setFechaNacimiento(request.getFechaNacimiento());
         entity.setEstado(request.getEstado());
@@ -36,6 +37,7 @@ public class PacienteMapper implements Mapper<PacienteEntity, PacienteRequestDTO
         dto.setPrimerApellido(entity.getPrimerApellido());
         dto.setSegundoApellido(entity.getSegundoApellido());
         dto.setTelefono(entity.getTelefono());
+        dto.setCorreo(entity.getCorreo());
         dto.setDireccion(entity.getDireccion());
         dto.setFechaNacimiento(entity.getFechaNacimiento());
         dto.setEstado(entity.getEstado());
@@ -49,9 +51,10 @@ public class PacienteMapper implements Mapper<PacienteEntity, PacienteRequestDTO
         if (request.getSegundoNombre() != null) entity.setSegundoNombre(request.getSegundoNombre());
         if (request.getPrimerApellido() != null) entity.setPrimerApellido(request.getPrimerApellido());
         if (request.getSegundoApellido() != null) entity.setSegundoApellido(request.getSegundoApellido());
+        if (request.getFechaNacimiento() != null) entity.setFechaNacimiento(request.getFechaNacimiento());
         if (request.getTelefono() != null) entity.setTelefono(request.getTelefono());
+        if (request.getCorreo() != null) entity.setCorreo(request.getCorreo());
         if (request.getDireccion() != null) entity.setDireccion(request.getDireccion());
         if (request.getEstado() != null) entity.setEstado(request.getEstado());
-        // Agrega el correo aquí si decides conservarlo en la base de datos
     }
 }

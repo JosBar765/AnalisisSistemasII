@@ -1,0 +1,65 @@
+<div class="modal-backdrop" (click)="cerrar.emit()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ paciente() ? 'Editar Datos del Paciente' : 'Registrar Paciente Nuevo' }}</h3>
+      <button class="modal-close" (click)="cerrar.emit()">&times;</button>
+    </div>
+    <div class="modal-body">
+      @if (error()) {
+        <div class="alert alert-danger">{{ error() }}</div>
+      }
+      <form [formGroup]="form" (ngSubmit)="enviar()">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">DPI / Documento Identificación</label>
+            <input type="text" class="form-control" formControlName="dpi" maxlength="13" placeholder="Hasta 13 caracteres" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha de Nacimiento</label>
+            <input type="date" class="form-control" formControlName="fechaNacimiento" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Primer Nombre</label>
+            <input type="text" class="form-control" formControlName="primerNombre" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Segundo Nombre</label>
+            <input type="text" class="form-control" formControlName="segundoNombre" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Primer Apellido</label>
+            <input type="text" class="form-control" formControlName="primerApellido" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Segundo Apellido</label>
+            <input type="text" class="form-control" formControlName="segundoApellido" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Teléfono / WhatsApp</label>
+            <input type="tel" class="form-control" formControlName="telefono" placeholder="XXXX-XXXX" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Correo Electrónico</label>
+            <input type="email" class="form-control" formControlName="correo" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dirección de Residencia</label>
+          <textarea class="form-control" rows="2" formControlName="direccion" placeholder="Dirección completa..."></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="cerrar.emit()">Cancelar</button>
+      <button class="btn btn-primary" [disabled]="form.invalid || guardando()" (click)="enviar()">
+        {{ paciente() ? 'Guardar Cambios' : 'Guardar Paciente' }}
+      </button>
+    </div>
+  </div>
+</div>
