@@ -17,10 +17,10 @@ services:
       - medisistema_pgdata:/var/lib/postgresql/data
 
       # 01: esquema
-      - ./.agents/MediSistema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
 
       # 02: seed
-      - ./docker/init/02_seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
