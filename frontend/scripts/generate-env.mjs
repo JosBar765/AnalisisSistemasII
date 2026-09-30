@@ -1,27 +1,7 @@
 // Genera src/environments/*.ts a partir de ../.env (o de las variables de entorno, p. ej. en Railway).
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const raiz = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const archivoEnv = resolve(raiz, '../.env');
-
-const variables = { ...process.env };
-if (existsSync(archivoEnv)) {
-  for (const linea of readFileSync(archivoEnv, 'utf8').split(/\r?\n/)) {
-    const coincidencia = linea.match(/^\s*([\w.]+)\s*=\s*(.*?)\s*$/);
-    if (coincidencia && !linea.trim().startsWith('#')) {
-      variables[coincidencia[1]] = coincidencia[2];
-    }
-  }
-}
-
-const requerida = (nombre) => {
-  if (!variables[nombre]) {
-    throw new Error(`Falta la variable ${nombre} (defínela en .env o como variable de entorno).`);
-  }
-  return variables[nombre];
-};
+import { writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { raiz, requerida, variables } from './cargar-env.mjs';
 
 // El WebSocket vive en el mismo host que la API: http -> ws, https -> wss.
 const RUTA_WEBSOCKET = '/ws/citas';
