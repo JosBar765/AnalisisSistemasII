@@ -57,7 +57,7 @@ para el detalle y las limitaciones conocidas (no hay JWT todavía).
 ├── backend/          Spring Boot (API REST)
 ├── frontend/          Angular (SPA)
 ├── docker-compose.yml PostgreSQL local
-├── docker/init/        Seed data (el esquema se toma de .agents/MediSistema.sql)
+├── database/           Esquema (schema.sql) y datos iniciales (seed.sql) de PostgreSQL
 ├── vistas/             Prototipos HTML/CSS (referencia visual, no se ejecutan)
 └── .agents/            Análisis, reglas de arquitectura y documentación de cambios
 ```

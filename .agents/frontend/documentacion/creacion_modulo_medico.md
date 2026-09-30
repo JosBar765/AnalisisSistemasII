@@ -72,7 +72,7 @@ a los endpoints clínicos.
 ## Diferencias con las vistas propuestas (por el modelo de datos o el análisis)
 
 - Sin "No. Expediente", sexo, "Procedencia" del documento ni "Estado en consulta" (no existen en el modelo).
-- La altura se captura en **cm** (así lo define `MediSistema.sql`); el mockup la pedía en metros.
+- La altura se captura en **cm** (así lo define `database/schema.sql`); el mockup la pedía en metros.
 - El diagnóstico es texto libre (no hay catálogo CIE-10).
 - El motivo de modificación es un **catálogo**, no texto libre (así es el modelo), como en documentos.
 - La cola se calcula con la llegada y el llamado, no con un estado "En consulta" (los estados son tres).

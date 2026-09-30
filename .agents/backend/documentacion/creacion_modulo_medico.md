@@ -10,7 +10,7 @@ cambio `ConsultaServiceImpl` era un CRUD mínimo sin validaciones ni auditoría 
 
 ## Decisiones aprobadas por el usuario (fuera del modelo original)
 
-1. **Cambio de esquema** en `AuditoriaConsulta` (`.agents/MediSistema.sql`): 10 columnas nulables para
+1. **Cambio de esquema** en `AuditoriaConsulta` (`database/schema.sql`): 10 columnas nulables para
    auditar los signos vitales, porque UC-MED-004 permite modificarlos y la tabla no podía guardarlos.
    `peso_anterior`, `altura_anterior`, `presion_sistolica_anterior`, `presion_diastolica_anterior`,
    `temperatura_anterior` y las equivalentes `*_nuevo/_nueva`. Para bases ya creadas:
@@ -42,7 +42,7 @@ backend/src/main/java/com/josbar/medisistemas/
 ├── repositories/ConsultaRepository, CitaRepository, AuditoriaConsultaRepository
 ├── domain/entities/AuditoriaConsultaEntity.java    (+ 10 columnas)
 └── domain/dtos/consulta/*, domain/dtos/auditoria/AuditoriaConsultaResponseDTO.java
-.agents/MediSistema.sql                              (AuditoriaConsulta + comentario)
+database/schema.sql                                  (AuditoriaConsulta + comentario)
 ```
 
 ## Endpoints y reglas

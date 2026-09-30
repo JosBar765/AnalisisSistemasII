@@ -17,7 +17,6 @@ La estructura actual es:
 ├── frontend/
 │   └── documentacion/
 │
-├── MediSistema.sql
 ├── reglas_despliegue.md
 ├── reglas_estructura_y_features.md
 └── reglas_documentacion.md
@@ -33,15 +32,19 @@ Los archivos ubicados directamente en la raíz de `.agents` contienen informaci�
 
 ```text
 .agents/
-├── MediSistema.sql
 ├── reglas_despliegue.md
 ├── reglas_estructura_y_features.md
 └── reglas_documentacion.md
 ```
 
-### `MediSistema.sql`
+### `database/schema.sql` (fuera de `.agents`)
 
-Contiene el esquema de base de datos de MediSistema.
+El esquema de base de datos vive en la carpeta `database/` de la raíz del repositorio
+(`database/schema.sql` y `database/seed.sql`), no en `.agents`. Antes se llamaba
+`.agents/MediSistema.sql`; los documentos históricos de `backend/documentacion/` que lo mencionan se
+refieren a `database/schema.sql`, y `docker/init/02_seed.sql` pasó a ser `database/seed.sql`.
+
+`database/schema.sql` contiene el esquema de base de datos de MediSistema.
 
 Debe utilizarse como referencia para conocer:
 
@@ -544,7 +547,7 @@ Antes de implementar una funcionalidad, seguir este orden conceptual:
                 └── reglas_estructura_y_features.md
                 │
                 ▼
-3. Revisar MediSistema.sql
+3. Revisar database/schema.sql
                 │
                 ▼
 4. Revisar documentación existente
