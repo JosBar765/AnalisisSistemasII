@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
+import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -19,6 +20,9 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Canal de tiempo real de las citas. Solo comunica eventos; no ejecuta reglas de negocio.
@@ -37,12 +41,38 @@ public class CitaWebSocketHandler extends TextWebSocketHandler implements CitaEv
     private static final String ATTR_USUARIO_ID = "usuarioId";
     private static final String ROL_SECRETARIA = "SECRETARIA";
     private static final String ROL_MEDICO = "MEDICO";
+    private static final long SEGUNDOS_PARA_AUTENTICAR = 10;
 
     private final JwtDecoder jwtDecoder;
     private final Set<WebSocketSession> sesionesAutenticadas = ConcurrentHashMap.newKeySet();
+    private final ScheduledExecutorService temporizador = Executors.newSingleThreadScheduledExecutor(runnable -> {
+        Thread hilo = new Thread(runnable, "ws-citas-autenticacion");
+        hilo.setDaemon(true);
+        return hilo;
+    });
 
     public CitaWebSocketHandler(JwtDecoder jwtDecoder) {
         this.jwtDecoder = jwtDecoder;
+    }
+
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) {
+        temporizador.schedule(() -> cerrarSiNoSeAutentico(session), SEGUNDOS_PARA_AUTENTICAR, TimeUnit.SECONDS);
+    }
+
+    private void cerrarSiNoSeAutentico(WebSocketSession session) {
+        if (session.isOpen() && !sesionesAutenticadas.contains(session)) {
+            try {
+                session.close(CloseStatus.POLICY_VIOLATION.withReason("Autenticación requerida"));
+            } catch (IOException e) {
+                log.warn("No se pudo cerrar la sesión {} sin autenticar: {}", session.getId(), e.getMessage());
+            }
+        }
+    }
+
+    @PreDestroy
+    void detenerTemporizador() {
+        temporizador.shutdownNow();
     }
 
     @Override

@@ -2,7 +2,13 @@ package com.josbar.medisistemas.services.impl;
 
 import com.josbar.medisistemas.exceptions.AlmacenamientoException;
 import com.josbar.medisistemas.services.AlmacenamientoService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -22,16 +28,20 @@ import java.util.UUID;
 @Service
 public class SupabaseAlmacenamientoServiceImpl implements AlmacenamientoService {
 
+    private static final Logger log = LoggerFactory.getLogger(SupabaseAlmacenamientoServiceImpl.class);
     private static final int SEGUNDOS_VIGENCIA_ENLACE = 300;
 
+    private final Environment environment;
     private final String baseUrl;
     private final String bucket;
     private final RestClient restClient;
 
-    public SupabaseAlmacenamientoServiceImpl(@Value("${app.supabase.url:}") String url,
+    public SupabaseAlmacenamientoServiceImpl(Environment environment,
+                                             @Value("${app.supabase.url:}") String url,
                                              @Value("${app.supabase.service-key:}") String serviceKey,
                                              @Value("${app.supabase.bucket:documentos-clinicos}") String bucket) {
-        this.baseUrl = url.isBlank() ? "" : url.replaceAll("/+$", "") + "/storage/v1";
+        this.environment = environment;
+        this.baseUrl = url.isBlank() || serviceKey.isBlank() ? "" : url.replaceAll("/+$", "") + "/storage/v1";
         this.bucket = bucket;
 
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
@@ -62,6 +72,33 @@ public class SupabaseAlmacenamientoServiceImpl implements AlmacenamientoService 
             return ruta;
         } catch (RestClientException | IOException e) {
             throw new AlmacenamientoException("No se pudo guardar el archivo en el almacenamiento.", e);
+        }
+    }
+
+    @Override
+    public void eliminar(String ruta) {
+        try {
+            restClient.delete()
+                    .uri(baseUrl + "/object/" + bucket + "/" + ruta)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (RestClientException e) {
+            log.warn("No se pudo eliminar el archivo huérfano '{}' del almacenamiento: {}", ruta, e.getMessage());
+        }
+    }
+
+    /** En producción la falta de configuración es un error visible en los logs; en desarrollo es esperable. */
+    @EventListener(ApplicationReadyEvent.class)
+    void verificarConfiguracion() {
+        if (!baseUrl.isEmpty()) {
+            return;
+        }
+        String mensaje = "Supabase Storage sin configurar (SUPABASE_URL / SUPABASE_SERVICE_KEY): "
+                + "subir y leer documentos responderá 503.";
+        if (environment.acceptsProfiles(Profiles.of("prod"))) {
+            log.error(mensaje);
+        } else {
+            log.info(mensaje);
         }
     }
 

@@ -18,6 +18,8 @@ import com.josbar.medisistemas.repositories.MotivoModificacionDocumentoRepositor
 import com.josbar.medisistemas.repositories.PacienteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -69,7 +71,7 @@ public class DocumentoServiceImpl implements DocumentoService {
         entity.setCategoriaDocumentoEntity(categoria);
         entity.setUsuarioEntityCarga(usuarioCarga);
         entity.setNombre(archivo.getOriginalFilename());
-        entity.setUrl(almacenamientoService.guardar(paciente.getId(), archivo));
+        entity.setUrl(guardarArchivo(paciente.getId(), archivo));
         entity.setFechaCarga(LocalDateTime.now());
         return documentoRepository.save(entity);
     }
@@ -86,7 +88,7 @@ public class DocumentoServiceImpl implements DocumentoService {
         String urlAnterior = entity.getUrl();
 
         entity.setNombre(archivo.getOriginalFilename());
-        entity.setUrl(almacenamientoService.guardar(entity.getPacienteEntity().getId(), archivo));
+        entity.setUrl(guardarArchivo(entity.getPacienteEntity().getId(), archivo));
         if (request.getIdCategoriaDocumento() != null) {
             entity.setCategoriaDocumentoEntity(findCategoria(request.getIdCategoriaDocumento()));
         }
@@ -115,6 +117,23 @@ public class DocumentoServiceImpl implements DocumentoService {
     @Override
     public String obtenerEnlaceLectura(Integer id) {
         return almacenamientoService.generarEnlaceTemporal(findById(id).getUrl());
+    }
+
+    /**
+     * Guarda el archivo nuevo y, si la transacción no se confirma, lo elimina para no dejar huérfanos.
+     * Solo se borra el archivo recién subido: el anterior nunca se elimina.
+     */
+    private String guardarArchivo(Integer idPaciente, MultipartFile archivo) {
+        String ruta = almacenamientoService.guardar(idPaciente, archivo);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCompletion(int status) {
+                if (status != STATUS_COMMITTED) {
+                    almacenamientoService.eliminar(ruta);
+                }
+            }
+        });
+        return ruta;
     }
 
     private DocumentoEntity findById(Integer id) {
