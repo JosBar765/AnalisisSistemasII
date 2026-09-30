@@ -5,10 +5,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.time.LocalDateTime;
@@ -53,6 +56,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MissingServletRequestPartException.class, MissingServletRequestParameterException.class})
     public ResponseEntity<ErrorResponseDTO> handleMissingRequestData(Exception ex, HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, "Falta información requerida en la solicitud (archivo o parámetro).", request);
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<ErrorResponseDTO> handleMalformedRequest(Exception ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, "La solicitud tiene un formato inválido (cuerpo JSON o parámetro mal formado).", request);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleNoResource(NoResourceFoundException ex, HttpServletRequest request) {
+        return build(HttpStatus.NOT_FOUND, "El recurso solicitado no existe.", request);
     }
 
     @ExceptionHandler(Exception.class)
