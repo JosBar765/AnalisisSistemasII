@@ -72,7 +72,7 @@
 </div>
 
 @if (modalAbierto()) {
-  <div class="modal-backdrop" (click)="cerrarModal()">
+  <div class="modal-backdrop" appFondoModal (fondoClick)="cerrarModal()">
     <div class="modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3 class="modal-title">{{ medicoEditando() ? 'Editar Médico' : 'Registrar Nuevo Médico' }}</h3>

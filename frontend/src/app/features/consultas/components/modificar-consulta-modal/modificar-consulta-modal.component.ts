@@ -5,12 +5,13 @@ import {
   SignosVitalesCamposComponent,
   crearGrupoSignosVitales,
 } from '../signos-vitales-campos/signos-vitales-campos.component';
+import { FondoModalDirective } from '../../../../shared/directives/fondo-modal.directive';
 
 /** Modal de corrección de una consulta finalizada. No guarda: emite la solicitud. */
 @Component({
   selector: 'app-modificar-consulta-modal',
   standalone: true,
-  imports: [ReactiveFormsModule, SignosVitalesCamposComponent],
+  imports: [FondoModalDirective, ReactiveFormsModule, SignosVitalesCamposComponent],
   templateUrl: './modificar-consulta-modal.component.html',
 })
 export class ModificarConsultaModalComponent implements OnInit {
@@ -18,7 +19,6 @@ export class ModificarConsultaModalComponent implements OnInit {
 
   readonly consulta = input.required<Consulta>();
   readonly motivos = input.required<CatalogoConsulta[]>();
-  readonly error = input<string | null>(null);
   readonly guardando = input(false);
 
   readonly guardar = output<ModificarConsultaRequest>();

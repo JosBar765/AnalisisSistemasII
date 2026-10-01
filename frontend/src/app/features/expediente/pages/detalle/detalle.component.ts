@@ -6,6 +6,8 @@ import { LoadingSpinnerComponent } from '../../../../shared/components/loading-s
 import { EdadPipe } from '../../../../shared/pipes/edad.pipe';
 import { Hora12Pipe } from '../../../../shared/pipes/hora12.pipe';
 import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pipe';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 /** Vista lógica del expediente: datos del paciente, últimos signos vitales, historial de consultas y documentos. */
 @Component({
@@ -15,6 +17,7 @@ import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pip
   templateUrl: './detalle.component.html',
 })
 export class DetalleExpedienteComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
   private readonly expedienteService = inject(ExpedienteService);
 
@@ -62,9 +65,9 @@ export class DetalleExpedienteComponent implements OnInit {
           window.open(url, '_blank');
         }
       },
-      error: () => {
+      error: (err) => {
         ventana?.close();
-        this.error.set('No se pudo abrir el documento.');
+        this.notificacion.error(mensajeDeError(err, 'No se pudo abrir el documento.'));
       },
     });
   }

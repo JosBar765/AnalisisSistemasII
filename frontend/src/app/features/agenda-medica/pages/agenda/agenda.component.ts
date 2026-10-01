@@ -15,6 +15,8 @@ import { LoadingSpinnerComponent } from '../../../../shared/components/loading-s
 import { EdadPipe } from '../../../../shared/pipes/edad.pipe';
 import { Hora12Pipe } from '../../../../shared/pipes/hora12.pipe';
 import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pipe';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
 
 /**
  * Agenda del médico (UC-MED-001): sus citas por fecha y la cola de pacientes presentes. El médico
@@ -27,6 +29,7 @@ import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pip
   templateUrl: './agenda.component.html',
 })
 export class AgendaMedicaComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly agendaService = inject(AgendaMedicaService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -82,7 +85,7 @@ export class AgendaMedicaComponent implements OnInit {
   solicitarLlamado(cita: CitaMedica): void {
     this.agendaService.solicitarLlamado(cita.id).subscribe({
       next: () => this.cargar(false),
-      error: (err: HttpErrorResponse) => this.error.set(err.error?.message ?? 'No se pudo solicitar el llamado.'),
+      error: (err: HttpErrorResponse) => this.notificacion.error(mensajeDeError(err, 'No se pudo solicitar el llamado.')),
     });
   }
 }

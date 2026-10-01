@@ -3,14 +3,18 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EspecialidadService } from '../../services/especialidad.service';
 import { Catalogo } from '../../models/catalogo.model';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { FondoModalDirective } from '../../../../shared/directives/fondo-modal.directive';
 
 @Component({
   selector: 'app-especialidades',
   standalone: true,
-  imports: [ReactiveFormsModule, LoadingSpinnerComponent],
+  imports: [FondoModalDirective, ReactiveFormsModule, LoadingSpinnerComponent],
   templateUrl: './especialidades.component.html',
 })
 export class EspecialidadesComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly especialidadService = inject(EspecialidadService);
   private readonly fb = inject(FormBuilder);
 
@@ -76,7 +80,7 @@ export class EspecialidadesComponent implements OnInit {
         this.cerrarModal();
         this.cargarEspecialidades();
       },
-      error: () => this.error.set('No se pudo guardar la especialidad.'),
+      error: (err) => this.notificacion.error(mensajeDeError(err, 'No se pudo guardar la especialidad.')),
     });
   }
 
@@ -84,13 +88,7 @@ export class EspecialidadesComponent implements OnInit {
     this.error.set(null);
     this.especialidadService.eliminar(especialidad.id).subscribe({
       next: () => this.cargarEspecialidades(),
-      error: (err) => {
-        this.error.set(
-          err?.status === 400
-            ? 'No se puede eliminar la especialidad porque tiene médicos asociados.'
-            : 'No se pudo eliminar la especialidad.'
-        );
-      },
+      error: (err) => this.notificacion.error(mensajeDeError(err, 'No se pudo eliminar la especialidad.')),
     });
   }
 }

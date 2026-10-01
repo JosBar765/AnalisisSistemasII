@@ -3,14 +3,18 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DocumentoService } from '../../services/documento.service';
 import { CatalogoDocumento, EXTENSIONES_PERMITIDAS, PacienteDocumento } from '../../models/documento.model';
 import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pipe';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
+import { FondoModalDirective } from '../../../../shared/directives/fondo-modal.directive';
 
 @Component({
   selector: 'app-subir-documento-modal',
   standalone: true,
-  imports: [NombreCompletoPipe],
+  imports: [FondoModalDirective, NombreCompletoPipe],
   templateUrl: './subir-documento-modal.component.html',
 })
 export class SubirDocumentoModalComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly documentoService = inject(DocumentoService);
 
   readonly paciente = input.required<PacienteDocumento>();
@@ -22,7 +26,6 @@ export class SubirDocumentoModalComponent implements OnInit {
   readonly categorias = signal<CatalogoDocumento[]>([]);
   readonly idCategoria = signal<number | null>(null);
   readonly archivo = signal<File | null>(null);
-  readonly error = signal<string | null>(null);
   readonly subiendo = signal(false);
 
   ngOnInit(): void {
@@ -41,7 +44,6 @@ export class SubirDocumentoModalComponent implements OnInit {
     }
 
     this.subiendo.set(true);
-    this.error.set(null);
     this.documentoService.subir(this.paciente().id, idCategoria, archivo).subscribe({
       next: () => {
         this.subiendo.set(false);
@@ -49,7 +51,7 @@ export class SubirDocumentoModalComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.subiendo.set(false);
-        this.error.set(err.error?.message ?? 'No se pudo subir el documento.');
+        this.notificacion.error(mensajeDeError(err, 'No se pudo subir el documento.'));
       },
     });
   }

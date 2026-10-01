@@ -5,14 +5,18 @@ import { CatalogoService } from '../../services/catalogo.service';
 import { Usuario } from '../../models/usuario.model';
 import { Catalogo } from '../../models/catalogo.model';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { FondoModalDirective } from '../../../../shared/directives/fondo-modal.directive';
 
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [ReactiveFormsModule, LoadingSpinnerComponent],
+  imports: [FondoModalDirective, ReactiveFormsModule, LoadingSpinnerComponent],
   templateUrl: './usuarios.component.html',
 })
 export class UsuariosComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly usuarioService = inject(UsuarioService);
   private readonly catalogoService = inject(CatalogoService);
   private readonly fb = inject(FormBuilder);
@@ -127,14 +131,14 @@ export class UsuariosComponent implements OnInit {
         this.cerrarModal();
         this.cargarUsuarios();
       },
-      error: () => this.error.set('No se pudo guardar el usuario. Verifique los datos ingresados.'),
+      error: (err) => this.notificacion.error(mensajeDeError(err, 'No se pudo guardar el usuario.')),
     });
   }
 
   cambiarEstado(usuario: Usuario): void {
     this.usuarioService.cambiarEstado(usuario.id, !usuario.estado).subscribe({
       next: () => this.cargarUsuarios(),
-      error: () => this.error.set('No se pudo cambiar el estado del usuario.'),
+      error: (err) => this.notificacion.error(mensajeDeError(err, 'No se pudo cambiar el estado del usuario.')),
     });
   }
 }

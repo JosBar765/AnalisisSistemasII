@@ -5,6 +5,9 @@ import { CitaService } from '../../services/cita.service';
 import { Cita, MedicoCita, PacienteCita } from '../../models/cita.model';
 import { Hora12Pipe } from '../../../../shared/pipes/hora12.pipe';
 import { NombreCompletoPipe, nombreCompleto } from '../../../../shared/pipes/nombre-completo.pipe';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
+import { FondoModalDirective } from '../../../../shared/directives/fondo-modal.directive';
 
 /**
  * Modal para programar una cita nueva o reprogramar una existente (si recibe `cita`).
@@ -13,11 +16,12 @@ import { NombreCompletoPipe, nombreCompleto } from '../../../../shared/pipes/nom
 @Component({
   selector: 'app-cita-form-modal',
   standalone: true,
-  imports: [ReactiveFormsModule, Hora12Pipe, NombreCompletoPipe],
+  imports: [FondoModalDirective, ReactiveFormsModule, Hora12Pipe, NombreCompletoPipe],
   templateUrl: './cita-form-modal.component.html',
   styleUrl: './cita-form-modal.component.css',
 })
 export class CitaFormModalComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly citaService = inject(CitaService);
   private readonly fb = inject(FormBuilder);
 
@@ -34,7 +38,6 @@ export class CitaFormModalComponent implements OnInit {
   readonly horarios = signal<string[]>([]);
   readonly cargandoHorarios = signal(false);
   readonly horaSeleccionada = signal<string | null>(null);
-  readonly error = signal<string | null>(null);
   readonly guardando = signal(false);
 
   readonly pacientesFiltrados = computed(() => {
@@ -84,7 +87,7 @@ export class CitaFormModalComponent implements OnInit {
         this.cargandoHorarios.set(false);
       },
       error: () => {
-        this.error.set('No se pudieron consultar los horarios disponibles.');
+        this.notificacion.error('No se pudieron consultar los horarios disponibles.');
         this.cargandoHorarios.set(false);
       },
     });
@@ -102,7 +105,6 @@ export class CitaFormModalComponent implements OnInit {
     const peticion = cita ? this.citaService.reprogramar(cita.id, request) : this.citaService.programar(request);
 
     this.guardando.set(true);
-    this.error.set(null);
     peticion.subscribe({
       next: () => {
         this.guardando.set(false);
@@ -110,7 +112,7 @@ export class CitaFormModalComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.guardando.set(false);
-        this.error.set(err.error?.message ?? 'No se pudo guardar la cita.');
+        this.notificacion.error(mensajeDeError(err, 'No se pudo guardar la cita.'));
         this.cargarHorarios();
       },
     });

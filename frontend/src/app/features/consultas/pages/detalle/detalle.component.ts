@@ -13,6 +13,8 @@ import {
 import { ModificarConsultaModalComponent } from '../../components/modificar-consulta-modal/modificar-consulta-modal.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { Hora12Pipe } from '../../../../shared/pipes/hora12.pipe';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
 
 /** Consulta finalizada (UC-MED-004): datos actuales y bitácora de modificaciones. Solo el médico que la atendió la corrige. */
 @Component({
@@ -22,6 +24,7 @@ import { Hora12Pipe } from '../../../../shared/pipes/hora12.pipe';
   templateUrl: './detalle.component.html',
 })
 export class DetalleConsultaComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
   private readonly auth = inject(AuthService);
   private readonly consultaService = inject(ConsultaService);
@@ -36,7 +39,6 @@ export class DetalleConsultaComponent implements OnInit {
 
   readonly modalAbierto = signal(false);
   readonly guardando = signal(false);
-  readonly errorFormulario = signal<string | null>(null);
 
   readonly puedeModificar = computed(() => this.consulta()?.idMedico === this.auth.usuario()?.id);
 
@@ -64,13 +66,11 @@ export class DetalleConsultaComponent implements OnInit {
   }
 
   abrirModal(): void {
-    this.errorFormulario.set(null);
     this.modalAbierto.set(true);
   }
 
   guardar(request: ModificarConsultaRequest): void {
     this.guardando.set(true);
-    this.errorFormulario.set(null);
     this.consultaService.modificar(this.id, request).subscribe({
       next: () => {
         this.guardando.set(false);
@@ -78,7 +78,7 @@ export class DetalleConsultaComponent implements OnInit {
         this.cargar();
       },
       error: (err: HttpErrorResponse) => {
-        this.errorFormulario.set(err.error?.message ?? 'No se pudo modificar la consulta.');
+        this.notificacion.error(mensajeDeError(err, 'No se pudo modificar la consulta.'));
         this.guardando.set(false);
       },
     });

@@ -14,6 +14,8 @@ import {
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { Hora12Pipe } from '../../../../shared/pipes/hora12.pipe';
 import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pipe';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
 
 /** Inicio de recepción: citas de hoy, llegada de pacientes y llamados solicitados por los médicos. */
 @Component({
@@ -23,6 +25,7 @@ import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pip
   templateUrl: './inicio.component.html',
 })
 export class InicioComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly citaService = inject(CitaService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -73,7 +76,7 @@ export class InicioComponent implements OnInit {
   marcarLlegada(cita: Cita): void {
     this.citaService.registrarLlegada(cita.id).subscribe({
       next: () => this.cargar(false),
-      error: (err: HttpErrorResponse) => this.error.set(err.error?.message ?? 'No se pudo registrar la llegada.'),
+      error: (err: HttpErrorResponse) => this.notificacion.error(mensajeDeError(err, 'No se pudo registrar la llegada.')),
     });
   }
 }

@@ -1,13 +1,10 @@
-<div class="modal-backdrop" (click)="cerrar.emit()">
+<div class="modal-backdrop" appFondoModal (fondoClick)="cerrar.emit()">
   <div class="modal-card" style="max-width:700px;" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h3 class="modal-title">Modificar Consulta Finalizada (Regla de Auditoría)</h3>
       <button class="modal-close" (click)="cerrar.emit()">&times;</button>
     </div>
     <div class="modal-body">
-      @if (error()) {
-        <div class="alert alert-danger">{{ error() }}</div>
-      }
       <form [formGroup]="form" (ngSubmit)="enviar()">
         <div class="form-group">
           <label class="form-label">Motivo de Consulta</label>

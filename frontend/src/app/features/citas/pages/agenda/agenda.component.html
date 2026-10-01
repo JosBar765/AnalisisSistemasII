@@ -120,7 +120,7 @@
 }
 
 @if (citaPorCancelar(); as cita) {
-  <div class="modal-backdrop" (click)="citaPorCancelar.set(null)">
+  <div class="modal-backdrop" appFondoModal (fondoClick)="citaPorCancelar.set(null)">
     <div class="modal-card" style="max-width: 460px;" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h3 class="modal-title">Cancelar Cita</h3>

@@ -7,14 +7,18 @@ import { Medico } from '../../models/medico.model';
 import { Usuario } from '../../models/usuario.model';
 import { Catalogo } from '../../models/catalogo.model';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { FondoModalDirective } from '../../../../shared/directives/fondo-modal.directive';
 
 @Component({
   selector: 'app-medicos',
   standalone: true,
-  imports: [ReactiveFormsModule, LoadingSpinnerComponent],
+  imports: [FondoModalDirective, ReactiveFormsModule, LoadingSpinnerComponent],
   templateUrl: './medicos.component.html',
 })
 export class MedicosComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly medicoService = inject(MedicoService);
   private readonly usuarioService = inject(UsuarioService);
   private readonly catalogoService = inject(CatalogoService);
@@ -104,7 +108,7 @@ export class MedicosComponent implements OnInit {
         this.cerrarModal();
         this.cargarMedicos();
       },
-      error: () => this.error.set('No se pudo guardar el médico. Verifique que el usuario esté activo.'),
+      error: (err) => this.notificacion.error(mensajeDeError(err, 'No se pudo guardar el médico.')),
     });
   }
 
@@ -112,7 +116,7 @@ export class MedicosComponent implements OnInit {
     const nuevoEstado = !medico.usuarioResponseDTO.estado;
     this.medicoService.cambiarEstado(medico.id, nuevoEstado).subscribe({
       next: () => this.cargarMedicos(),
-      error: () => this.error.set('No se pudo cambiar el estado del médico.'),
+      error: (err) => this.notificacion.error(mensajeDeError(err, 'No se pudo cambiar el estado del médico.')),
     });
   }
 }

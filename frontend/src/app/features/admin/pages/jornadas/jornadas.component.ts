@@ -7,14 +7,18 @@ import { JornadaMedica } from '../../models/jornada.model';
 import { Medico } from '../../models/medico.model';
 import { Catalogo } from '../../models/catalogo.model';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { FondoModalDirective } from '../../../../shared/directives/fondo-modal.directive';
 
 @Component({
   selector: 'app-jornadas',
   standalone: true,
-  imports: [ReactiveFormsModule, LoadingSpinnerComponent],
+  imports: [FondoModalDirective, ReactiveFormsModule, LoadingSpinnerComponent],
   templateUrl: './jornadas.component.html',
 })
 export class JornadasComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly jornadaService = inject(JornadaService);
   private readonly medicoService = inject(MedicoService);
   private readonly catalogoService = inject(CatalogoService);
@@ -70,7 +74,7 @@ export class JornadasComponent implements OnInit {
 
   abrirNueva(): void {
     if (!this.idMedicoSeleccionado()) {
-      this.error.set('Seleccione un médico antes de configurar un período.');
+      this.notificacion.error('Seleccione un médico antes de configurar un período.');
       return;
     }
     this.jornadaEditando.set(null);
@@ -111,14 +115,14 @@ export class JornadasComponent implements OnInit {
         this.cerrarModal();
         this.cargarJornadas();
       },
-      error: () => this.error.set('No se pudo guardar la jornada. Verifique que la hora de inicio sea anterior a la de fin.'),
+      error: (err) => this.notificacion.error(mensajeDeError(err, 'No se pudo guardar la jornada.')),
     });
   }
 
   eliminar(jornada: JornadaMedica): void {
     this.jornadaService.eliminar(jornada.id).subscribe({
       next: () => this.cargarJornadas(),
-      error: () => this.error.set('No se pudo eliminar la jornada.'),
+      error: (err) => this.notificacion.error(mensajeDeError(err, 'No se pudo eliminar la jornada.')),
     });
   }
 }

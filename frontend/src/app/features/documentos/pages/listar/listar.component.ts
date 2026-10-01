@@ -7,6 +7,8 @@ import { SubirDocumentoModalComponent } from '../../components/subir-documento-m
 import { ReemplazarDocumentoModalComponent } from '../../components/reemplazar-documento-modal/reemplazar-documento-modal.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pipe';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-documentos-listar',
@@ -21,6 +23,7 @@ import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pip
   templateUrl: './listar.component.html',
 })
 export class ListarDocumentosComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly documentoService = inject(DocumentoService);
   private readonly route = inject(ActivatedRoute);
 
@@ -96,9 +99,9 @@ export class ListarDocumentosComponent implements OnInit {
           window.open(url, '_blank');
         }
       },
-      error: () => {
+      error: (err) => {
         ventana?.close();
-        this.error.set('No se pudo abrir el documento.');
+        this.notificacion.error(mensajeDeError(err, 'No se pudo abrir el documento.'));
       },
     });
   }

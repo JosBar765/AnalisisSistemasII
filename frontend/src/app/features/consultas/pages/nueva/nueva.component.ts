@@ -12,6 +12,8 @@ import { LoadingSpinnerComponent } from '../../../../shared/components/loading-s
 import { EdadPipe } from '../../../../shared/pipes/edad.pipe';
 import { Hora12Pipe } from '../../../../shared/pipes/hora12.pipe';
 import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pipe';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
 
 /** Atención clínica de una cita (UC-MED-003): al finalizar, la cita pasa a "Atendido". */
 @Component({
@@ -29,6 +31,7 @@ import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pip
   templateUrl: './nueva.component.html',
 })
 export class NuevaConsultaComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -82,7 +85,7 @@ export class NuevaConsultaComponent implements OnInit {
       .subscribe({
         next: () => this.router.navigate(['/agenda']),
         error: (err: HttpErrorResponse) => {
-          this.error.set(err.error?.message ?? 'No se pudo guardar la consulta.');
+          this.notificacion.error(mensajeDeError(err, 'No se pudo guardar la consulta.'));
           this.guardando.set(false);
         },
       });

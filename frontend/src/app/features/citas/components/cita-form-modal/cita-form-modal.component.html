@@ -1,13 +1,10 @@
-<div class="modal-backdrop" (click)="cerrar.emit()">
+<div class="modal-backdrop" appFondoModal (fondoClick)="cerrar.emit()">
   <div class="modal-card" style="max-width: 650px;" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <h3 class="modal-title">{{ cita() ? 'Reprogramar Cita' : 'Agendar Nueva Cita' }}</h3>
       <button class="modal-close" (click)="cerrar.emit()">&times;</button>
     </div>
     <div class="modal-body">
-      @if (error()) {
-        <div class="alert alert-danger">{{ error() }}</div>
-      }
 
       <form [formGroup]="form">
         @if (cita(); as c) {

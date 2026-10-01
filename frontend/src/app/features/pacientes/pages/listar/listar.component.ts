@@ -6,6 +6,8 @@ import { Paciente, PacienteRequest } from '../../models/paciente.model';
 import { PacienteFormComponent } from '../../components/paciente-form/paciente-form.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { NombreCompletoPipe, nombreCompleto } from '../../../../shared/pipes/nombre-completo.pipe';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-pacientes-listar',
@@ -14,6 +16,7 @@ import { NombreCompletoPipe, nombreCompleto } from '../../../../shared/pipes/nom
   templateUrl: './listar.component.html',
 })
 export class ListarPacientesComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly pacienteService = inject(PacienteService);
 
   readonly pacientes = signal<Paciente[]>([]);
@@ -23,7 +26,6 @@ export class ListarPacientesComponent implements OnInit {
 
   readonly modalAbierto = signal(false);
   readonly pacienteEditando = signal<Paciente | null>(null);
-  readonly errorFormulario = signal<string | null>(null);
   readonly guardando = signal(false);
 
   readonly pacientesFiltrados = computed(() => {
@@ -55,13 +57,11 @@ export class ListarPacientesComponent implements OnInit {
 
   abrirNuevo(): void {
     this.pacienteEditando.set(null);
-    this.errorFormulario.set(null);
     this.modalAbierto.set(true);
   }
 
   abrirEditar(paciente: Paciente): void {
     this.pacienteEditando.set(paciente);
-    this.errorFormulario.set(null);
     this.modalAbierto.set(true);
   }
 
@@ -76,7 +76,6 @@ export class ListarPacientesComponent implements OnInit {
       : this.pacienteService.registrar(request);
 
     this.guardando.set(true);
-    this.errorFormulario.set(null);
     peticion.subscribe({
       next: () => {
         this.guardando.set(false);
@@ -85,7 +84,7 @@ export class ListarPacientesComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.guardando.set(false);
-        this.errorFormulario.set(err.error?.message ?? 'No se pudo guardar el paciente.');
+        this.notificacion.error(mensajeDeError(err, 'No se pudo guardar el paciente.'));
       },
     });
   }
@@ -93,7 +92,7 @@ export class ListarPacientesComponent implements OnInit {
   cambiarEstado(paciente: Paciente): void {
     this.pacienteService.cambiarEstado(paciente.id, !paciente.estado).subscribe({
       next: () => this.cargarPacientes(),
-      error: () => this.error.set('No se pudo cambiar el estado del paciente.'),
+      error: (err) => this.notificacion.error(mensajeDeError(err, 'No se pudo cambiar el estado del paciente.')),
     });
   }
 }

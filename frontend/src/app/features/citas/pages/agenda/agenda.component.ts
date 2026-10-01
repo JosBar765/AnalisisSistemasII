@@ -9,14 +9,18 @@ import { CitaFormModalComponent } from '../../components/cita-form-modal/cita-fo
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { Hora12Pipe } from '../../../../shared/pipes/hora12.pipe';
 import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pipe';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
+import { FondoModalDirective } from '../../../../shared/directives/fondo-modal.directive';
 
 @Component({
   selector: 'app-citas-agenda',
   standalone: true,
-  imports: [CitaFormModalComponent, LoadingSpinnerComponent, Hora12Pipe, NombreCompletoPipe],
+  imports: [FondoModalDirective, CitaFormModalComponent, LoadingSpinnerComponent, Hora12Pipe, NombreCompletoPipe],
   templateUrl: './agenda.component.html',
 })
 export class AgendaComponent implements OnInit {
+  private readonly notificacion = inject(NotificationService);
   private readonly citaService = inject(CitaService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
@@ -140,7 +144,7 @@ export class AgendaComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.citaPorCancelar.set(null);
-        this.error.set(err.error?.message ?? 'No se pudo cancelar la cita.');
+        this.notificacion.error(mensajeDeError(err, 'No se pudo cancelar la cita.'));
       },
     });
   }

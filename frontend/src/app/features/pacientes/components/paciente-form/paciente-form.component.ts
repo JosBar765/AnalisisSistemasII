@@ -1,19 +1,19 @@
 import { Component, OnInit, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Paciente, PacienteRequest } from '../../models/paciente.model';
+import { FondoModalDirective } from '../../../../shared/directives/fondo-modal.directive';
 
 /** Modal de registro y edición de datos administrativos del paciente. No guarda: emite la solicitud. */
 @Component({
   selector: 'app-paciente-form',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [FondoModalDirective, ReactiveFormsModule],
   templateUrl: './paciente-form.component.html',
 })
 export class PacienteFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
 
   readonly paciente = input<Paciente | null>(null);
-  readonly error = input<string | null>(null);
   readonly guardando = input(false);
 
   readonly guardar = output<PacienteRequest>();

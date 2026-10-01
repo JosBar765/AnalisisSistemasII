@@ -86,7 +86,6 @@
 @if (modalAbierto()) {
   <app-paciente-form
     [paciente]="pacienteEditando()"
-    [error]="errorFormulario()"
     [guardando]="guardando()"
     (guardar)="guardar($event)"
     (cerrar)="cerrarModal()"
