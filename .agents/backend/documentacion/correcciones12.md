@@ -77,5 +77,5 @@ documentos → 409 "utilizado por: documentos". Antes: todos 400 con el mensaje 
 - `SQLSTATE 22001` no indica la columna: por eso las longitudes se validan antes en los DTO; el mensaje de la
   base es el último recurso.
 - Los mensajes propios son siempre en español; los por defecto de Bean Validation siguen el idioma fijo `es`.
-- Pendiente (no es una restricción de la base): evitar jornadas que se traslapan y exigir que el usuario del
-  médico tenga rol `MEDICO`; el análisis no lo define.
+- **Resuelto después:** jornadas que se traslapan → `correcciones13.md`; usuario del médico con rol `MEDICO` (servicio y
+  base) → `correcciones14.md`; correos y nombres que difieren en mayúsculas → `correcciones15.md`.
