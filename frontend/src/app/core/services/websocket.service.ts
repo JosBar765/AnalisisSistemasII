@@ -20,6 +20,7 @@ export interface EventoTiempoReal {
 /** Roles que reciben eventos en tiempo real. El Backend decide qué evento recibe cada uno. */
 const ROLES_CON_TIEMPO_REAL: Rol[] = ['SECRETARIA', 'MEDICO'];
 const MS_REINTENTO = 3000;
+const POLITICA_VIOLADA = 1008;
 
 /**
  * Conexión WebSocket única de la aplicación. Se abre mientras haya una sesión válida de un rol que
@@ -61,9 +62,12 @@ export class WebSocketService {
 
     socket.onopen = () => socket.send(token);
     socket.onmessage = (mensaje) => this.procesar(mensaje.data);
-    socket.onclose = () => {
+    socket.onclose = (evento) => {
       this.socket = null;
-      if (!this.cierreIntencional && this.auth.estaAutenticado()) {
+      // 1008: el Backend rechazó la sesión (usuario desactivado o token inválido); reintentar no sirve.
+      if (evento.code === POLITICA_VIOLADA && !this.cierreIntencional) {
+        this.auth.logout();
+      } else if (!this.cierreIntencional && this.auth.estaAutenticado()) {
         this.reintento = setTimeout(() => this.conectar(), MS_REINTENTO);
       }
     };
