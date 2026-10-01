@@ -1,5 +1,5 @@
 // Genera src/environments/*.ts a partir de ../.env (o de las variables de entorno, p. ej. en Railway).
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { raiz, requerida, variables } from './cargar-env.mjs';
 
@@ -13,6 +13,8 @@ const plantilla = (production, apiUrl) =>
   `  wsUrl: '${aWebSocket(apiUrl)}',\n};\n`;
 
 const dir = resolve(raiz, 'src/environments');
+// Git no versiona carpetas vacías ni los archivos generados: la carpeta puede no existir.
+mkdirSync(dir, { recursive: true });
 const apiLocal = `http://localhost:${requerida('SERVER_PORT')}`;
 writeFileSync(resolve(dir, 'environment.ts'), plantilla(false, apiLocal));
 
