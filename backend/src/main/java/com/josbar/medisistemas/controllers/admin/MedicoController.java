@@ -7,6 +7,8 @@ import com.josbar.medisistemas.mappers.impl.MedicoMapper;
 import com.josbar.medisistemas.services.MedicoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +38,13 @@ public class MedicoController {
                 .map(medicoMapper::toResponse)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(medicos, HttpStatus.OK);
+    }
+
+    /** Perfil del médico autenticado (el id del médico es el mismo del usuario, o sea el `sub` del JWT). */
+    @GetMapping("/me")
+    public ResponseEntity<MedicoResponseDTO> consultarMiPerfil(@AuthenticationPrincipal Jwt jwt) {
+        MedicoEntity entity = medicoService.findById(Integer.valueOf(jwt.getSubject()));
+        return new ResponseEntity<>(medicoMapper.toResponse(entity), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

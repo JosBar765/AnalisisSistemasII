@@ -2,6 +2,7 @@ package com.josbar.medisistemas.services.impl;
 
 import com.josbar.medisistemas.exceptions.AlmacenamientoException;
 import com.josbar.medisistemas.services.AlmacenamientoService;
+import com.josbar.medisistemas.services.ArchivoAlmacenado;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,9 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -30,6 +34,7 @@ public class SupabaseAlmacenamientoServiceImpl implements AlmacenamientoService 
 
     private static final Logger log = LoggerFactory.getLogger(SupabaseAlmacenamientoServiceImpl.class);
     private static final int SEGUNDOS_VIGENCIA_ENLACE = 300;
+    private static final int TAMANIO_PAGINA = 100;
 
     private final Environment environment;
     private final String baseUrl;
@@ -85,6 +90,58 @@ public class SupabaseAlmacenamientoServiceImpl implements AlmacenamientoService 
         } catch (RestClientException e) {
             log.warn("No se pudo eliminar el archivo huérfano '{}' del almacenamiento: {}", ruta, e.getMessage());
         }
+    }
+
+    /**
+     * Recorre el bucket: la raíz contiene carpetas (una por paciente, sin id) y dentro de cada una los archivos.
+     * Si algo falla se lanza AlmacenamientoException: la limpieza no debe actuar con una lista incompleta.
+     */
+    @Override
+    public List<ArchivoAlmacenado> listarArchivos() {
+        exigirConfiguracion();
+        List<ArchivoAlmacenado> archivos = new ArrayList<>();
+        for (Map<String, Object> entrada : listarEntradas("")) {
+            if (entrada.get("id") == null) {
+                String carpeta = (String) entrada.get("name");
+                for (Map<String, Object> archivo : listarEntradas(carpeta)) {
+                    if (archivo.get("id") != null) {
+                        archivos.add(aArchivo(carpeta + "/", archivo));
+                    }
+                }
+            } else {
+                archivos.add(aArchivo("", entrada));
+            }
+        }
+        return archivos;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> listarEntradas(String prefijo) {
+        List<Map<String, Object>> entradas = new ArrayList<>();
+        try {
+            for (int desplazamiento = 0; ; desplazamiento += TAMANIO_PAGINA) {
+                List<Map<String, Object>> pagina = restClient.post()
+                        .uri(baseUrl + "/object/list/" + bucket)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(Map.of("prefix", prefijo, "limit", TAMANIO_PAGINA, "offset", desplazamiento))
+                        .retrieve()
+                        .body(List.class);
+                if (pagina == null || pagina.isEmpty()) {
+                    return entradas;
+                }
+                entradas.addAll(pagina);
+                if (pagina.size() < TAMANIO_PAGINA) {
+                    return entradas;
+                }
+            }
+        } catch (RestClientException e) {
+            throw new AlmacenamientoException("No se pudo listar el almacenamiento.", e);
+        }
+    }
+
+    private ArchivoAlmacenado aArchivo(String carpeta, Map<String, Object> entrada) {
+        Object creado = entrada.get("created_at");
+        return new ArchivoAlmacenado(carpeta + entrada.get("name"), creado == null ? Instant.now() : Instant.parse(creado.toString()));
     }
 
     /** En producción la falta de configuración es un error visible en los logs; en desarrollo es esperable. */

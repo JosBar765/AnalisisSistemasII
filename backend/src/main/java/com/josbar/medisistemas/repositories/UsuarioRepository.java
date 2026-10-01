@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface UsuarioRepository extends CrudRepository<UsuarioEntity, Integer> {
     Optional<UsuarioEntity> findByCorreo(String correo);
+
+    boolean existsByIdAndEstadoTrue(Integer id);
 }

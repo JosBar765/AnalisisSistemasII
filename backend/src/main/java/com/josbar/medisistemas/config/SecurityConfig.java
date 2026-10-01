@@ -1,14 +1,19 @@
 package com.josbar.medisistemas.config;
 
 import com.josbar.medisistemas.security.JwtService;
+import com.josbar.medisistemas.security.SesionUsuarioValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,7 +33,8 @@ public class SecurityConfig {
     private static final String MEDICO = "MEDICO";
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource,
+                                                   SesionUsuarioValidator sesionValidator) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.disable())
@@ -47,13 +53,14 @@ public class SecurityConfig {
                                 "/auditorias/documentos/**").hasAnyRole(SECRETARIA, MEDICO)
                         .requestMatchers("/pacientes/**", "/citas/**", "/documentos/**").hasRole(SECRETARIA)
                         // La secretaria necesita ver los médicos para programar citas.
+                        .requestMatchers(HttpMethod.GET, "/medicos/me").hasRole(MEDICO)
                         .requestMatchers(HttpMethod.GET, "/medicos/**").hasAnyRole(ADMINISTRADOR, SECRETARIA)
                         .requestMatchers("/usuarios/**", "/medicos/**", "/especialidades/**",
                                 "/jornadas/**", "/dashboard/**", "/categorias-documento/**")
                         .hasRole(ADMINISTRADOR)
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter(sesionValidator))))
                 .httpBasic(basic -> basic.disable())
                 .formLogin(form -> form.disable());
 
@@ -65,7 +72,18 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    private JwtAuthenticationConverter jwtAuthenticationConverter() {
+    /** Rechaza (401) el token de un usuario que fue desactivado o eliminado, aunque aún no haya vencido. */
+    private Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter(SesionUsuarioValidator sesionValidator) {
+        JwtAuthenticationConverter convertidor = convertidorDeRoles();
+        return jwt -> {
+            if (!sesionValidator.estaActivo(Integer.valueOf(jwt.getSubject()))) {
+                throw new InvalidBearerTokenException("La sesión ya no es válida: el usuario está inactivo.");
+            }
+            return convertidor.convert(jwt);
+        };
+    }
+
+    private JwtAuthenticationConverter convertidorDeRoles() {
         JwtGrantedAuthoritiesConverter authorities = new JwtGrantedAuthoritiesConverter();
         authorities.setAuthoritiesClaimName(JwtService.CLAIM_ROL);
         authorities.setAuthorityPrefix("ROLE_");

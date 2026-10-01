@@ -87,11 +87,11 @@ public class DocumentoServiceImpl implements DocumentoService {
         String nombreAnterior = entity.getNombre();
         String urlAnterior = entity.getUrl();
 
-        entity.setNombre(archivo.getOriginalFilename());
-        entity.setUrl(guardarArchivo(entity.getPacienteEntity().getId(), archivo));
         if (request.getIdCategoriaDocumento() != null) {
             entity.setCategoriaDocumentoEntity(findCategoria(request.getIdCategoriaDocumento()));
         }
+        entity.setNombre(archivo.getOriginalFilename());
+        entity.setUrl(guardarArchivo(entity.getPacienteEntity().getId(), archivo));
         DocumentoEntity actualizado = documentoRepository.save(entity);
 
         UsuarioEntity usuario = new UsuarioEntity();

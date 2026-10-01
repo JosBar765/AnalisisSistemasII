@@ -1,5 +1,6 @@
 package com.josbar.medisistemas.services.impl;
 
+import com.josbar.medisistemas.services.CierreSesionPublisher;
 import com.josbar.medisistemas.services.UsuarioService;
 import com.josbar.medisistemas.domain.dtos.usuario.UsuarioRequestDTO;
 import com.josbar.medisistemas.domain.entities.UsuarioEntity;
@@ -19,11 +20,14 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
+    private final CierreSesionPublisher cierreSesionPublisher;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper, PasswordEncoder passwordEncoder) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper, PasswordEncoder passwordEncoder,
+                              CierreSesionPublisher cierreSesionPublisher) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioMapper = usuarioMapper;
         this.passwordEncoder = passwordEncoder;
+        this.cierreSesionPublisher = cierreSesionPublisher;
     }
 
     @Override
@@ -53,7 +57,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioEntity modificar(Integer id, UsuarioRequestDTO request) {
         UsuarioEntity entity = findById(id);
         usuarioMapper.updateEntity(request, entity);
-        return usuarioRepository.save(entity);
+        return guardarYCerrarSesionesSiInactivo(entity);
     }
 
     @Override
@@ -61,7 +65,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioEntity cambiarEstado(Integer id, Boolean estado) {
         UsuarioEntity entity = findById(id);
         entity.setEstado(estado);
-        return usuarioRepository.save(entity);
+        return guardarYCerrarSesionesSiInactivo(entity);
     }
 
     @Override
@@ -70,5 +74,14 @@ public class UsuarioServiceImpl implements UsuarioService {
         UsuarioEntity entity = findById(id);
         entity.setContrasenia(passwordEncoder.encode(nuevaContrasenia));
         usuarioRepository.save(entity);
+    }
+
+    /** Un usuario inactivo pierde su sesión: el JWT deja de aceptarse y se cierra su conexión en tiempo real. */
+    private UsuarioEntity guardarYCerrarSesionesSiInactivo(UsuarioEntity entity) {
+        UsuarioEntity guardado = usuarioRepository.save(entity);
+        if (Boolean.FALSE.equals(guardado.getEstado())) {
+            cierreSesionPublisher.cerrarSesionesDe(guardado.getId());
+        }
+        return guardado;
     }
 }

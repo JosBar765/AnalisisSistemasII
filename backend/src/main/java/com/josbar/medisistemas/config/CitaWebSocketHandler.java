@@ -2,6 +2,8 @@ package com.josbar.medisistemas.config;
 
 import com.josbar.medisistemas.domain.dtos.cita.EventoCitaDTO;
 import com.josbar.medisistemas.security.JwtService;
+import com.josbar.medisistemas.security.SesionUsuarioValidator;
+import com.josbar.medisistemas.services.CierreSesionPublisher;
 import com.josbar.medisistemas.services.CitaEventoPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  * y el médico solo los de sus propias citas.
  */
 @Component
-public class CitaWebSocketHandler extends TextWebSocketHandler implements CitaEventoPublisher {
+public class CitaWebSocketHandler extends TextWebSocketHandler implements CitaEventoPublisher, CierreSesionPublisher {
 
     private static final Logger log = LoggerFactory.getLogger(CitaWebSocketHandler.class);
 
@@ -44,6 +46,7 @@ public class CitaWebSocketHandler extends TextWebSocketHandler implements CitaEv
     private static final long SEGUNDOS_PARA_AUTENTICAR = 10;
 
     private final JwtDecoder jwtDecoder;
+    private final SesionUsuarioValidator sesionValidator;
     private final Set<WebSocketSession> sesionesAutenticadas = ConcurrentHashMap.newKeySet();
     private final ScheduledExecutorService temporizador = Executors.newSingleThreadScheduledExecutor(runnable -> {
         Thread hilo = new Thread(runnable, "ws-citas-autenticacion");
@@ -51,8 +54,9 @@ public class CitaWebSocketHandler extends TextWebSocketHandler implements CitaEv
         return hilo;
     });
 
-    public CitaWebSocketHandler(JwtDecoder jwtDecoder) {
+    public CitaWebSocketHandler(JwtDecoder jwtDecoder, SesionUsuarioValidator sesionValidator) {
         this.jwtDecoder = jwtDecoder;
+        this.sesionValidator = sesionValidator;
     }
 
     @Override
@@ -79,8 +83,13 @@ public class CitaWebSocketHandler extends TextWebSocketHandler implements CitaEv
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         try {
             Jwt jwt = jwtDecoder.decode(message.getPayload().trim());
+            Integer idUsuario = Integer.valueOf(jwt.getSubject());
+            if (!sesionValidator.estaActivo(idUsuario)) {
+                session.close(CloseStatus.POLICY_VIOLATION.withReason("Sesión finalizada"));
+                return;
+            }
             session.getAttributes().put(ATTR_ROL, jwt.getClaimAsString(JwtService.CLAIM_ROL));
-            session.getAttributes().put(ATTR_USUARIO_ID, Integer.valueOf(jwt.getSubject()));
+            session.getAttributes().put(ATTR_USUARIO_ID, idUsuario);
             sesionesAutenticadas.add(session);
             enviar(session, "{\"tipo\":\"AUTH_OK\"}");
         } catch (JwtException | NumberFormatException e) {
@@ -97,20 +106,37 @@ public class CitaWebSocketHandler extends TextWebSocketHandler implements CitaEv
     public void publicar(EventoCitaDTO evento) {
         String json = String.format("{\"tipo\":\"%s\",\"citaId\":%d,\"medicoId\":%d}",
                 evento.tipo(), evento.citaId(), evento.medicoId());
-        Runnable difusion = () -> sesionesAutenticadas.stream()
+        despuesDelCommit(() -> sesionesAutenticadas.stream()
                 .filter(session -> puedeRecibir(session, evento))
-                .forEach(session -> enviar(session, json));
+                .forEach(session -> enviar(session, json)));
+    }
 
-        // El cliente consulta por REST al recibir el evento: debe hacerlo cuando ya se confirmó la transacción.
+    @Override
+    public void cerrarSesionesDe(Integer idUsuario) {
+        despuesDelCommit(() -> sesionesAutenticadas.stream()
+                .filter(session -> idUsuario.equals(session.getAttributes().get(ATTR_USUARIO_ID)))
+                .forEach(this::cerrarPorSesionFinalizada));
+    }
+
+    /** El cliente reacciona al evento consultando por REST: debe hacerlo cuando ya se confirmó la transacción. */
+    private void despuesDelCommit(Runnable accion) {
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
-                    difusion.run();
+                    accion.run();
                 }
             });
         } else {
-            difusion.run();
+            accion.run();
+        }
+    }
+
+    private void cerrarPorSesionFinalizada(WebSocketSession session) {
+        try {
+            session.close(CloseStatus.POLICY_VIOLATION.withReason("Sesión finalizada"));
+        } catch (IOException e) {
+            log.warn("No se pudo cerrar la sesión {}: {}", session.getId(), e.getMessage());
         }
     }
 
