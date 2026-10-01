@@ -1,4 +1,6 @@
 -- Datos iniciales de MediSistema (roles, dias, estados, especialidades y usuario administrador).
+-- Los textos de identidad y catalogos editables (usuarios, pacientes, especialidades, categorias) se guardan en
+-- minusculas; la aplicacion los muestra en TitleCase.
 -- Se ejecuta automaticamente por el contenedor de Postgres despues de 01_schema.sql.
 
 INSERT INTO "Rol" (rol) VALUES
@@ -21,19 +23,19 @@ INSERT INTO "EstadoCita" (estado_cita) VALUES
   ('Cancelado');
 
 INSERT INTO "Especialidad" (especialidad) VALUES
-  ('Medicina General'),
-  ('Pediatria'),
-  ('Ginecologia'),
-  ('Cardiologia'),
-  ('Dermatologia');
+  ('medicina general'),
+  ('pediatria'),
+  ('ginecologia'),
+  ('cardiologia'),
+  ('dermatologia');
 
 INSERT INTO "CategoriaDocumento" (categoria_documento) VALUES
-  ('Examen de Laboratorio'),
-  ('Radiografia'),
-  ('Resonancia'),
-  ('Receta'),
-  ('Referencia Medica'),
-  ('Otro');
+  ('examen de laboratorio'),
+  ('radiografia'),
+  ('resonancia'),
+  ('receta'),
+  ('referencia medica'),
+  ('otro');
 
 INSERT INTO "MotivoModificacionConsulta" (motivo_modificacion, detalle_motivo) VALUES
   ('Correccion de error', 'Correccion de datos ingresados incorrectamente'),
@@ -49,9 +51,9 @@ INSERT INTO "MotivoModificacionDocumento" (motivo_modificacion, detalle_motivo) 
 INSERT INTO "Usuario" (id_rol, primer_nombre, primer_apellido, segundo_apellido, correo, telefono, contrasenia, fecha_creacion)
 VALUES (
   (SELECT id FROM "Rol" WHERE rol = 'ADMINISTRADOR'),
-  'Administrador',
-  'Sistema',
-  'MediSistema',
+  'administrador',
+  'sistema',
+  'medisistema',
   'admin@medisistema.com',
   '00000000',
   '$2b$10$Y8g3My9pkNLV/6ezWPqPu.v8w.Hl876kxQqFlrg2FWyjPkabzVyhO',

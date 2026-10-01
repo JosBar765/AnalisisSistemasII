@@ -236,3 +236,33 @@ ALTER TABLE "AuditoriaConsulta" ADD CONSTRAINT "FK_AuditoriaConsulta_Consulta" F
 ALTER TABLE "AuditoriaConsulta" ADD CONSTRAINT "FK_AuditoriaConsulta_Usuario" FOREIGN KEY ("id_usuario") REFERENCES "Usuario" ("id") DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "AuditoriaConsulta" ADD CONSTRAINT "FK_AuditoriaConsulta_MotivoModificacionConsulta" FOREIGN KEY ("id_motivo_modificacion") REFERENCES "MotivoModificacionConsulta" ("id") DEFERRABLE INITIALLY IMMEDIATE;
+
+
+-- Un usuario solo puede registrarse como médico si su rol es MEDICO, y mientras sea médico no puede cambiar de rol.
+CREATE FUNCTION "fn_medico_requiere_rol_medico"() RETURNS trigger AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM "Usuario" u JOIN "Rol" r ON r.id = u.id_rol WHERE u.id = NEW.id AND r.rol = 'MEDICO') THEN
+    RAISE EXCEPTION 'El usuario debe tener el rol MEDICO para registrarse como médico.' USING ERRCODE = '23514';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trg_medico_requiere_rol_medico"
+  BEFORE INSERT OR UPDATE ON "Medico"
+  FOR EACH ROW EXECUTE FUNCTION "fn_medico_requiere_rol_medico"();
+
+CREATE FUNCTION "fn_usuario_medico_conserva_rol"() RETURNS trigger AS $$
+BEGIN
+  IF NEW.id_rol <> OLD.id_rol
+     AND EXISTS (SELECT 1 FROM "Medico" WHERE id = NEW.id)
+     AND NOT EXISTS (SELECT 1 FROM "Rol" WHERE id = NEW.id_rol AND rol = 'MEDICO') THEN
+    RAISE EXCEPTION 'No se puede cambiar el rol: el usuario está registrado como médico y debe conservar el rol MEDICO.' USING ERRCODE = '23514';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trg_usuario_medico_conserva_rol"
+  BEFORE UPDATE OF id_rol ON "Usuario"
+  FOR EACH ROW EXECUTE FUNCTION "fn_usuario_medico_conserva_rol"();
