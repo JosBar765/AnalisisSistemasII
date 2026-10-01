@@ -5,6 +5,7 @@ import com.josbar.medisistemas.domain.dtos.catalogo.CatalogoResponseDTO;
 import com.josbar.medisistemas.domain.entities.*;
 import com.josbar.medisistemas.mappers.Mapper;
 import org.springframework.stereotype.Component;
+import com.josbar.medisistemas.utils.Texto;
 
 /**
  * Mapper genérico para entidades tipo catálogo (id + un único campo de texto):
@@ -29,7 +30,7 @@ public class CatalogoMapper implements Mapper<Object, CatalogoRequestDTO, Catalo
             return CatalogoResponseDTO.builder().id(rol.getId()).nombre(rol.getRol()).build();
         }
         if (entity instanceof EspecialidadEntity especialidad) {
-            return CatalogoResponseDTO.builder().id(especialidad.getId()).nombre(especialidad.getEspecialidad()).build();
+            return CatalogoResponseDTO.builder().id(especialidad.getId()).nombre(Texto.titulo(especialidad.getEspecialidad())).build();
         }
         if (entity instanceof DiaSemanaEntity diaSemana) {
             return CatalogoResponseDTO.builder().id(diaSemana.getId()).nombre(diaSemana.getDiaSemana()).build();
@@ -38,7 +39,7 @@ public class CatalogoMapper implements Mapper<Object, CatalogoRequestDTO, Catalo
             return CatalogoResponseDTO.builder().id(estadoCita.getId()).nombre(estadoCita.getEstadoCita()).build();
         }
         if (entity instanceof CategoriaDocumentoEntity categoria) {
-            return CatalogoResponseDTO.builder().id(categoria.getId()).nombre(categoria.getCategoriaDocumento()).build();
+            return CatalogoResponseDTO.builder().id(categoria.getId()).nombre(Texto.titulo(categoria.getCategoriaDocumento())).build();
         }
         if (entity instanceof MotivoModificacionConsultaEntity motivo) {
             return CatalogoResponseDTO.builder().id(motivo.getId()).nombre(motivo.getMotivoModificacion()).build();

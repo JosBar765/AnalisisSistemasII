@@ -9,6 +9,7 @@ import com.josbar.medisistemas.domain.entities.ConsultaEntity;
 import com.josbar.medisistemas.domain.entities.SignosVitalesEntity;
 import com.josbar.medisistemas.mappers.Mapper;
 import org.springframework.stereotype.Component;
+import com.josbar.medisistemas.utils.Texto;
 
 @Component
 public class ConsultaMapper implements Mapper<ConsultaEntity, RegistrarConsultaRequestDTO, ConsultaResponseDTO> {
@@ -53,11 +54,11 @@ public class ConsultaMapper implements Mapper<ConsultaEntity, RegistrarConsultaR
             dto.setFecha(cita.getFecha());
             dto.setHora(cita.getHora());
             dto.setIdMedico(cita.getMedicoEntity().getId());
-            dto.setNombreMedico(cita.getMedicoEntity().getUsuarioEntity().getPrimerNombre() + " "
-                    + cita.getMedicoEntity().getUsuarioEntity().getPrimerApellido());
+            dto.setNombreMedico(Texto.titulo(cita.getMedicoEntity().getUsuarioEntity().getPrimerNombre() + " "
+                    + cita.getMedicoEntity().getUsuarioEntity().getPrimerApellido()));
             dto.setIdPaciente(cita.getPacienteEntity().getId());
-            dto.setNombrePaciente(cita.getPacienteEntity().getPrimerNombre() + " "
-                    + cita.getPacienteEntity().getPrimerApellido());
+            dto.setNombrePaciente(Texto.titulo(cita.getPacienteEntity().getPrimerNombre() + " "
+                    + cita.getPacienteEntity().getPrimerApellido()));
         }
         dto.setMotivoConsulta(entity.getMotivoConsulta());
         dto.setDiagnostico(entity.getDiagnostico());

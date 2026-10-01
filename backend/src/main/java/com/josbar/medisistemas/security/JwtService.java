@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import com.josbar.medisistemas.utils.Texto;
 
 /**
  * Genera el JWT firmado (HS256). El token lleva el id del usuario (sub), su rol
@@ -37,7 +38,7 @@ public class JwtService {
                 .issuedAt(ahora)
                 .expiresAt(ahora.plus(expiracion))
                 .claim(CLAIM_ROL, usuario.getRolEntity().getRol())
-                .claim(CLAIM_NOMBRE, usuario.getPrimerNombre() + " " + usuario.getPrimerApellido())
+                .claim(CLAIM_NOMBRE, Texto.titulo(usuario.getPrimerNombre() + " " + usuario.getPrimerApellido()))
                 .build();
 
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();

@@ -7,6 +7,7 @@ import com.josbar.medisistemas.domain.entities.UsuarioEntity;
 import com.josbar.medisistemas.mappers.Mapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import com.josbar.medisistemas.utils.Texto;
 
 @Component
 @RequiredArgsConstructor
@@ -41,10 +42,10 @@ public class UsuarioMapper implements Mapper<UsuarioEntity, UsuarioRequestDTO, U
 
         UsuarioResponseDTO response = new UsuarioResponseDTO();
         response.setId(entity.getId());
-        response.setPrimerNombre(entity.getPrimerNombre());
-        response.setSegundoNombre(entity.getSegundoNombre());
-        response.setPrimerApellido(entity.getPrimerApellido());
-        response.setSegundoApellido(entity.getSegundoApellido());
+        response.setPrimerNombre(Texto.titulo(entity.getPrimerNombre()));
+        response.setSegundoNombre(Texto.titulo(entity.getSegundoNombre()));
+        response.setPrimerApellido(Texto.titulo(entity.getPrimerApellido()));
+        response.setSegundoApellido(Texto.titulo(entity.getSegundoApellido()));
         response.setCorreo(entity.getCorreo());
         response.setTelefono(entity.getTelefono());
         response.setEstado(entity.getEstado());
@@ -67,10 +68,9 @@ public class UsuarioMapper implements Mapper<UsuarioEntity, UsuarioRequestDTO, U
 
         // El Rol se maneja con cuidado para no instanciar si no viene en el Request
         if (request.getIdRol() != null) {
-            if (entity.getRolEntity() == null) {
-                entity.setRolEntity(new RolEntity());
-            }
-            entity.getRolEntity().setId(request.getIdRol());
+            RolEntity rol = new RolEntity();
+            rol.setId(request.getIdRol());
+            entity.setRolEntity(rol);
         }
     }
 }

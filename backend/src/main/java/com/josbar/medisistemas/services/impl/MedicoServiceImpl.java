@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import com.josbar.medisistemas.security.Roles;
 
 @Service
 public class MedicoServiceImpl implements MedicoService {
@@ -36,6 +37,10 @@ public class MedicoServiceImpl implements MedicoService {
 
         if (!Boolean.TRUE.equals(usuario.getEstado())) {
             throw new BusinessRuleException("El médico debe estar asociado a un usuario activo del sistema.");
+        }
+        if (!Roles.MEDICO.equals(usuario.getRolEntity().getRol())) {
+            throw new BusinessRuleException("El usuario debe tener el rol MEDICO para registrarse como médico (rol actual: "
+                    + usuario.getRolEntity().getRol() + ").");
         }
 
         entity.setUsuarioEntity(usuario);

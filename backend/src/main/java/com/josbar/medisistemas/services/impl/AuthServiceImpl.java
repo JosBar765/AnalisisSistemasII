@@ -9,6 +9,7 @@ import com.josbar.medisistemas.repositories.UsuarioRepository;
 import com.josbar.medisistemas.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.josbar.medisistemas.utils.Texto;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -25,7 +26,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDTO autenticar(LoginRequestDTO loginRequest) {
-        UsuarioEntity usuario = usuarioRepository.findByCorreo(loginRequest.getCorreo())
+        UsuarioEntity usuario = usuarioRepository.findByCorreo(Texto.minusculas(loginRequest.getCorreo()))
                 .orElseThrow(() -> new InvalidCredentialsException("Correo o contraseña incorrectos."));
 
         if (!passwordEncoder.matches(loginRequest.getContrasenia(), usuario.getContrasenia())) {

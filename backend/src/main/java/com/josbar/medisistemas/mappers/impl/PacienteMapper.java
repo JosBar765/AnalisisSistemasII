@@ -5,6 +5,7 @@ import com.josbar.medisistemas.domain.dtos.paciente.PacienteResponseDTO;
 import com.josbar.medisistemas.domain.entities.PacienteEntity;
 import com.josbar.medisistemas.mappers.Mapper;
 import org.springframework.stereotype.Component;
+import com.josbar.medisistemas.utils.Texto;
 
 @Component
 public class PacienteMapper implements Mapper<PacienteEntity, PacienteRequestDTO, PacienteResponseDTO> {
@@ -32,13 +33,13 @@ public class PacienteMapper implements Mapper<PacienteEntity, PacienteRequestDTO
         PacienteResponseDTO dto = new PacienteResponseDTO();
         dto.setId(entity.getId());
         dto.setDpi(entity.getDpi());
-        dto.setPrimerNombre(entity.getPrimerNombre());
-        dto.setSegundoNombre(entity.getSegundoNombre());
-        dto.setPrimerApellido(entity.getPrimerApellido());
-        dto.setSegundoApellido(entity.getSegundoApellido());
+        dto.setPrimerNombre(Texto.titulo(entity.getPrimerNombre()));
+        dto.setSegundoNombre(Texto.titulo(entity.getSegundoNombre()));
+        dto.setPrimerApellido(Texto.titulo(entity.getPrimerApellido()));
+        dto.setSegundoApellido(Texto.titulo(entity.getSegundoApellido()));
         dto.setTelefono(entity.getTelefono());
         dto.setCorreo(entity.getCorreo());
-        dto.setDireccion(entity.getDireccion());
+        dto.setDireccion(Texto.titulo(entity.getDireccion()));
         dto.setFechaNacimiento(entity.getFechaNacimiento());
         dto.setEstado(entity.getEstado());
         return dto;

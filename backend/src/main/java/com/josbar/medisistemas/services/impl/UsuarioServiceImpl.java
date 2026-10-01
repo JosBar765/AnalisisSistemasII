@@ -14,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import com.josbar.medisistemas.security.Roles;
+import com.josbar.medisistemas.repositories.MedicoRepository;
+import com.josbar.medisistemas.repositories.RolRepository;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -24,13 +27,18 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
     private final CierreSesionPublisher cierreSesionPublisher;
+    private final MedicoRepository medicoRepository;
+    private final RolRepository rolRepository;
 
     public UsuarioServiceImpl(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper, PasswordEncoder passwordEncoder,
-                              CierreSesionPublisher cierreSesionPublisher) {
+                              CierreSesionPublisher cierreSesionPublisher, MedicoRepository medicoRepository,
+                              RolRepository rolRepository) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioMapper = usuarioMapper;
         this.passwordEncoder = passwordEncoder;
         this.cierreSesionPublisher = cierreSesionPublisher;
+        this.medicoRepository = medicoRepository;
+        this.rolRepository = rolRepository;
     }
 
     @Override
@@ -67,6 +75,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioEntity modificar(Integer id, UsuarioRequestDTO request) {
         UsuarioEntity entity = findById(id);
         usuarioMapper.updateEntity(request, entity);
+        validarRolDeMedico(entity);
         return guardarYCerrarSesionesSiInactivo(entity);
     }
 
@@ -88,6 +97,18 @@ public class UsuarioServiceImpl implements UsuarioService {
         UsuarioEntity entity = findById(id);
         entity.setContrasenia(passwordEncoder.encode(nuevaContrasenia));
         usuarioRepository.save(entity);
+    }
+
+    /** Quien está registrado como médico debe conservar el rol MEDICO. */
+    private void validarRolDeMedico(UsuarioEntity entity) {
+        if (medicoRepository.existsById(entity.getId())) {
+            String rol = rolRepository.findById(entity.getRolEntity().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("No se encontró el rol indicado."))
+                    .getRol();
+            if (!Roles.MEDICO.equals(rol)) {
+                throw new BusinessRuleException("No se puede cambiar el rol: el usuario está registrado como médico y debe conservar el rol MEDICO.");
+            }
+        }
     }
 
     /** Un usuario inactivo pierde su sesión: el JWT deja de aceptarse y se cierra su conexión en tiempo real. */

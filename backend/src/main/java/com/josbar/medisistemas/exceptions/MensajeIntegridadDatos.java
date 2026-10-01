@@ -18,6 +18,7 @@ public final class MensajeIntegridadDatos {
     public record ErrorDeIntegridad(HttpStatus status, String mensaje) {
     }
 
+    private static final String SQLSTATE_CHECK = "23514";
     private static final String SQLSTATE_NULO = "23502";
     private static final String SQLSTATE_FK = "23503";
     private static final String SQLSTATE_UNICO = "23505";
@@ -96,6 +97,9 @@ public final class MensajeIntegridadDatos {
         return switch (psql.getSQLState()) {
             case SQLSTATE_UNICO -> unico(constraint, detalle);
             case SQLSTATE_FK -> claveForanea(detalle);
+            case SQLSTATE_CHECK -> new ErrorDeIntegridad(HttpStatus.BAD_REQUEST,
+                    servidor != null && servidor.getMessage() != null ? servidor.getMessage()
+                            : "El valor no cumple una regla de la base de datos.");
             case SQLSTATE_NULO -> new ErrorDeIntegridad(HttpStatus.BAD_REQUEST,
                     "El campo «" + etiqueta(columna) + "» es obligatorio.");
             case SQLSTATE_LONGITUD -> longitud(psql.getMessage());

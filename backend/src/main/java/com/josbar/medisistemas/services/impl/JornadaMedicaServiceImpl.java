@@ -33,6 +33,7 @@ public class JornadaMedicaServiceImpl implements JornadaMedicaService {
         CamposObligatorios.exigir(entity.getHoraFin(), "hora de fin");
         CamposObligatorios.exigir(entity.getDuracionConsulta(), "duración de la consulta");
         validarHorario(entity);
+        validarSinTraslape(entity);
 
         if (!medicoRepository.existsById(entity.getMedicoEntity().getId())) {
             throw new ResourceNotFoundException("No se encontró el médico con id " + entity.getMedicoEntity().getId());
@@ -62,6 +63,7 @@ public class JornadaMedicaServiceImpl implements JornadaMedicaService {
         if (request.getDuracionConsulta() != null) entity.setDuracionConsulta(request.getDuracionConsulta());
 
         validarHorario(entity);
+        validarSinTraslape(entity);
         return jornadaMedicaRepository.save(entity);
     }
 
@@ -72,6 +74,25 @@ public class JornadaMedicaServiceImpl implements JornadaMedicaService {
             throw new ResourceNotFoundException("No se encontró la jornada con id " + id);
         }
         jornadaMedicaRepository.deleteById(id);
+    }
+
+    /**
+     * Un médico no puede tener dos períodos que se traslapen el mismo día. Que uno termine justo cuando empieza
+     * el otro (10:00-13:00 y 13:00-17:00) no es traslape.
+     */
+    private void validarSinTraslape(JornadaMedicaEntity nueva) {
+        jornadaMedicaRepository
+                .findByMedicoEntityIdAndDiaSemanaEntityId(nueva.getMedicoEntity().getId(), nueva.getDiaSemanaEntity().getId())
+                .stream()
+                .filter(existente -> !existente.getId().equals(nueva.getId()))
+                .filter(existente -> nueva.getHoraInicio().isBefore(existente.getHoraFin())
+                        && nueva.getHoraFin().isAfter(existente.getHoraInicio()))
+                .findFirst()
+                .ifPresent(existente -> {
+                    throw new BusinessRuleException("El período " + nueva.getHoraInicio() + " - " + nueva.getHoraFin()
+                            + " se traslapa con otro ya configurado para ese día (" + existente.getHoraInicio()
+                            + " - " + existente.getHoraFin() + ").");
+                });
     }
 
     private void validarHorario(JornadaMedicaEntity entity) {

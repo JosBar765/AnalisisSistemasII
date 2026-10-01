@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
+import com.josbar.medisistemas.security.Roles;
 
 /**
  * Autenticación stateless con JWT. El rol viaja en el claim "rol" y se traduce a
@@ -28,9 +29,9 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String ADMINISTRADOR = "ADMINISTRADOR";
-    private static final String SECRETARIA = "SECRETARIA";
-    private static final String MEDICO = "MEDICO";
+    private static final String ADMINISTRADOR = Roles.ADMINISTRADOR;
+    private static final String SECRETARIA = Roles.SECRETARIA;
+    private static final String MEDICO = Roles.MEDICO;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource,

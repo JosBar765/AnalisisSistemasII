@@ -5,6 +5,7 @@ import com.josbar.medisistemas.domain.dtos.consulta.SignosVitalesRequestDTO;
 import com.josbar.medisistemas.domain.entities.AuditoriaConsultaEntity;
 import com.josbar.medisistemas.mappers.Mapper;
 import org.springframework.stereotype.Component;
+import com.josbar.medisistemas.utils.Texto;
 
 @Component
 public class AuditoriaConsultaMapper implements Mapper<AuditoriaConsultaEntity, Void, AuditoriaConsultaResponseDTO> {
@@ -51,7 +52,7 @@ public class AuditoriaConsultaMapper implements Mapper<AuditoriaConsultaEntity, 
         dto.setObservacionesNuevo(entity.getObservacionesNuevo());
 
         dto.setNombreUsuario(entity.getUsuarioEntity() != null
-                ? entity.getUsuarioEntity().getPrimerNombre() + " " + entity.getUsuarioEntity().getPrimerApellido()
+                ? Texto.titulo(entity.getUsuarioEntity().getPrimerNombre() + " " + entity.getUsuarioEntity().getPrimerApellido())
                 : null);
         dto.setMotivoModificacion(entity.getMotivoModificacionConsultaEntity() != null
                 ? entity.getMotivoModificacionConsultaEntity().getMotivoModificacion()

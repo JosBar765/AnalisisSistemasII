@@ -6,6 +6,8 @@ import com.josbar.medisistemas.repositories.CitaRepository;
 import com.josbar.medisistemas.repositories.ConsultaRepository;
 import com.josbar.medisistemas.repositories.PacienteRepository;
 import org.springframework.stereotype.Service;
+import com.josbar.medisistemas.utils.Texto;
+import com.josbar.medisistemas.domain.dtos.dashboard.ConsultaPorMedicoDTO;
 
 @Service
 public class DashboardServiceImpl implements DashboardService {
@@ -26,7 +28,9 @@ public class DashboardServiceImpl implements DashboardService {
                 .pacientesRegistrados(pacienteRepository.count())
                 .consultasRealizadas(consultaRepository.count())
                 .citasCanceladas(citaRepository.countByEstadoCitaEntityEstadoCita("Cancelado"))
-                .consultasPorMedico(consultaRepository.obtenerConsultasPorMedico())
+                .consultasPorMedico(consultaRepository.obtenerConsultasPorMedico().stream()
+                        .map(c -> new ConsultaPorMedicoDTO(c.getIdMedico(), Texto.titulo(c.getNombreMedico()), c.getCantidad()))
+                        .toList())
                 .build();
     }
 }
