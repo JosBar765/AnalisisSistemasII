@@ -37,5 +37,5 @@ petición sin token sigue en 401 (la seguridad responde antes de llegar al manej
 - Esto **no** cambia los 401/403 de Spring Security (se resuelven antes de los controllers).
 - El mensaje 400 es genérico a propósito: no expone el detalle interno del parseo. El detalle queda en el
   log del servidor (nivel WARN, por `ExceptionHandlerExceptionResolver`).
-- Un método HTTP no permitido (p. ej. `DELETE /pacientes`) sigue sin manejador propio y responde 500; no se
-  incluyó por estar fuera del caso reportado.
+- Un método HTTP no permitido (p. ej. `DELETE /pacientes`) respondía 500; **resuelto después** en
+  `correcciones8.md` (405).

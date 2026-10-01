@@ -128,7 +128,7 @@ Controller → Service → Repository → PostgreSQL
 ### Pendientes que ya se resolvieron en otros documentos
 
 - Archivo huérfano en Storage si falla el guardado en BD → `correcciones5.md` (se elimina el
-  archivo nuevo si la transacción no se confirma; sigue sin barrido si el proceso se cae).
+  archivo nuevo si la transacción no se confirma; el barrido para el caso de caída del proceso está en `correcciones9.md`).
 - Conexiones WebSocket sin autenticar sin cierre por tiempo → `correcciones5.md` (cierre a los 10 s).
 - `CITA_ATENDIDA` y pasar la cita a "Atendido" → módulo Médico (`creacion_modulo_medico.md`).
 - Errores del cliente que respondían 500 (JSON mal formado, parámetro inválido, ruta inexistente)

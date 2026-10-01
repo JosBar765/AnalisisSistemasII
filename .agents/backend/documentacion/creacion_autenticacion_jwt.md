@@ -46,8 +46,8 @@ Angular ── Authorization: Bearer <JWT> ──► Spring Security (JwtDecoder
   en Railway; no tiene valor por defecto a propósito.
 - Al agregar los módulos de Secretaria y Médico hay que añadir sus reglas por rol en
   `SecurityConfig` (hoy solo exigen estar autenticado).
-- Un token ya emitido sigue siendo válido hasta que vence aunque el usuario se inactive
-  después; el estado solo se verifica al iniciar sesión.
+- ~~Un token ya emitido sigue siendo válido hasta que vence aunque el usuario se inactive~~ **Resuelto después**
+  (`correcciones10.md`): el estado del usuario se verifica en cada petición y al autenticar el WebSocket.
 - `SubirDocumentoRequestDTO.idUsuarioCarga` puede reemplazarse ya por el `sub` del token
   (pendiente, no incluido aquí).
 - Probado contra PostgreSQL en Docker: login válido (200 + token), credenciales erróneas

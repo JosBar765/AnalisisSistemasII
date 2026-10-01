@@ -56,6 +56,6 @@ Probado contra **Supabase real** y PostgreSQL local, con el backend en ejecució
 - Si la eliminación del huérfano falla (Supabase caído en ese instante), queda un `WARN`
   `No se pudo eliminar el archivo huérfano '<ruta>' ...` con la ruta para limpiarlo a mano.
 - Si el proceso se cae entre la subida y el final de la transacción, el `afterCompletion` no se
-  ejecuta y el archivo sí puede quedar huérfano; no hay barrido periódico del bucket.
+  ejecuta y el archivo sí puede quedar huérfano. **Resuelto después** con un barrido periódico: `correcciones9.md`.
 - El plazo de 10 s es una constante; el frontend envía el JWT al abrir la conexión, así que no se
   ve afectado.

@@ -91,4 +91,4 @@ a los endpoints clínicos.
   expediente con historial y documentos. Datos de prueba eliminados después.
 - No se probó *Ver Documento* (abre ventana nueva) desde el navegador; el enlace firmado y `&download=` se
   verificaron por HTTP contra Supabase.
-- El nombre del médico en el menú sale del JWT (`nombre`); su especialidad no se muestra (ver Backend).
+- El nombre del médico en el menú sale del JWT (`nombre`); su especialidad se obtiene de `GET /medicos/me` (`correcciones5.md`).
