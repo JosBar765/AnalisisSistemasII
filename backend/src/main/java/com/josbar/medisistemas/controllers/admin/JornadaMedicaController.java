@@ -5,6 +5,7 @@ import com.josbar.medisistemas.domain.dtos.jornada_medica.JornadaMedicaResponseD
 import com.josbar.medisistemas.domain.entities.JornadaMedicaEntity;
 import com.josbar.medisistemas.mappers.impl.JornadaMedicaMapper;
 import com.josbar.medisistemas.services.JornadaMedicaService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class JornadaMedicaController {
     }
 
     @PostMapping
-    public ResponseEntity<JornadaMedicaResponseDTO> registrarJornada(@RequestBody JornadaMedicaRequestDTO request) {
+    public ResponseEntity<JornadaMedicaResponseDTO> registrarJornada(@Valid @RequestBody JornadaMedicaRequestDTO request) {
         JornadaMedicaEntity entity = jornadaMedicaService.save(jornadaMedicaMapper.toEntity(request));
         return new ResponseEntity<>(jornadaMedicaMapper.toResponse(entity), HttpStatus.CREATED);
     }
@@ -41,7 +42,7 @@ public class JornadaMedicaController {
     @PutMapping("/{id}")
     public ResponseEntity<JornadaMedicaResponseDTO> modificarJornada(
             @PathVariable("id") Integer id,
-            @RequestBody JornadaMedicaRequestDTO request) {
+            @Valid @RequestBody JornadaMedicaRequestDTO request) {
         JornadaMedicaEntity updated = jornadaMedicaService.modificar(id, request);
         return new ResponseEntity<>(jornadaMedicaMapper.toResponse(updated), HttpStatus.OK);
     }

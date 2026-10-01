@@ -34,6 +34,7 @@ import java.util.Set;
 @Service
 public class DocumentoServiceImpl implements DocumentoService {
 
+    private static final int TAMANIO_MAXIMO_NOMBRE = 255; // columna Documento.nombre
     private static final Set<String> EXTENSIONES_PERMITIDAS = Set.of("pdf", "jpg", "jpeg", "png", "dcm");
 
     private final DocumentoRepository documentoRepository;
@@ -151,6 +152,9 @@ public class DocumentoServiceImpl implements DocumentoService {
             throw new BusinessRuleException("Debe seleccionar un archivo.");
         }
         String nombre = archivo.getOriginalFilename() == null ? "" : archivo.getOriginalFilename();
+        if (nombre.length() > TAMANIO_MAXIMO_NOMBRE) {
+            throw new BusinessRuleException("El nombre del archivo no puede superar " + TAMANIO_MAXIMO_NOMBRE + " caracteres.");
+        }
         String extension = nombre.contains(".") ? nombre.substring(nombre.lastIndexOf('.') + 1).toLowerCase() : "";
         if (!EXTENSIONES_PERMITIDAS.contains(extension)) {
             throw new BusinessRuleException("Tipo de archivo no permitido. Formatos válidos: PDF, JPG, PNG y DICOM (.dcm).");

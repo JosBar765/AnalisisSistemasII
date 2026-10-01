@@ -28,6 +28,9 @@ public class MedicoServiceImpl implements MedicoService {
     @Override
     @Transactional
     public MedicoEntity save(MedicoEntity entity) {
+        CamposObligatorios.exigir(entity.getUsuarioEntity().getId(), "usuario");
+        CamposObligatorios.exigir(entity.getEspecialidad().getId(), "especialidad");
+        CamposObligatorios.exigir(entity.getColegiado(), "número de colegiado");
         UsuarioEntity usuario = usuarioRepository.findById(entity.getUsuarioEntity().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el usuario asociado al médico."));
 

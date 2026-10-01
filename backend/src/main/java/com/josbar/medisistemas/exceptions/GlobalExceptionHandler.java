@@ -2,6 +2,8 @@ package com.josbar.medisistemas.exceptions;
 
 import com.josbar.medisistemas.domain.dtos.error.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
@@ -43,14 +47,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponseDTO> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest request) {
-        return build(HttpStatus.BAD_REQUEST, "La operación viola una restricción de integridad de datos (referencia inexistente o duplicada).", request);
+        log.warn("Violación de integridad de datos en {}: {}", request.getRequestURI(), ex.getMostSpecificCause().getMessage());
+        MensajeIntegridadDatos.ErrorDeIntegridad error = MensajeIntegridadDatos.traducir(ex);
+        return build(error.status(), error.mensaje(), request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
         String message = ex.getBindingResult().getFieldErrors().stream()
-                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
-                .collect(Collectors.joining("; "));
+                .map(fieldError -> mensajeDeCampo(fieldError.getField(), fieldError.getDefaultMessage()))
+                .collect(Collectors.joining(" "));
         return build(HttpStatus.BAD_REQUEST, message, request);
     }
 
@@ -77,6 +83,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGeneric(Exception ex, HttpServletRequest request) {
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado. Contacte al administrador del sistema.", request);
+    }
+
+    /**
+     * Un mensaje propio ya es una oración completa ("El teléfono no puede superar 15 caracteres."); uno por defecto
+     * de Bean Validation ("no debe estar vacío") necesita el nombre del campo, escrito de forma legible.
+     */
+    private String mensajeDeCampo(String campo, String mensaje) {
+        if (mensaje != null && !mensaje.isEmpty() && Character.isUpperCase(mensaje.charAt(0))) {
+            return mensaje.endsWith(".") ? mensaje : mensaje + ".";
+        }
+        String legible = MensajeIntegridadDatos.etiqueta(campo.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase());
+        return "El campo «" + legible + "» " + mensaje + ".";
     }
 
     private ResponseEntity<ErrorResponseDTO> build(HttpStatus status, String message, HttpServletRequest request) {

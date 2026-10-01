@@ -27,6 +27,11 @@ public class JornadaMedicaServiceImpl implements JornadaMedicaService {
     @Override
     @Transactional
     public JornadaMedicaEntity save(JornadaMedicaEntity entity) {
+        CamposObligatorios.exigir(entity.getMedicoEntity().getId(), "médico");
+        CamposObligatorios.exigir(entity.getDiaSemanaEntity().getId(), "día de la semana");
+        CamposObligatorios.exigir(entity.getHoraInicio(), "hora de inicio");
+        CamposObligatorios.exigir(entity.getHoraFin(), "hora de fin");
+        CamposObligatorios.exigir(entity.getDuracionConsulta(), "duración de la consulta");
         validarHorario(entity);
 
         if (!medicoRepository.existsById(entity.getMedicoEntity().getId())) {

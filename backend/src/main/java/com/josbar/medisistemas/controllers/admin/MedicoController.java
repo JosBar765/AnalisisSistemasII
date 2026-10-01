@@ -5,6 +5,7 @@ import com.josbar.medisistemas.domain.dtos.medico.MedicoResponseDTO;
 import com.josbar.medisistemas.domain.entities.MedicoEntity;
 import com.josbar.medisistemas.mappers.impl.MedicoMapper;
 import com.josbar.medisistemas.services.MedicoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,7 +28,7 @@ public class MedicoController {
     }
 
     @PostMapping
-    public ResponseEntity<MedicoResponseDTO> registrarMedico(@RequestBody MedicoRequestDTO request) {
+    public ResponseEntity<MedicoResponseDTO> registrarMedico(@Valid @RequestBody MedicoRequestDTO request) {
         var entity = medicoService.save(medicoMapper.toEntity(request));
         return new ResponseEntity<>(medicoMapper.toResponse(entity), HttpStatus.CREATED);
     }
@@ -59,7 +60,7 @@ public class MedicoController {
     @PutMapping("/{id}")
     public ResponseEntity<MedicoResponseDTO> modificarMedico(
             @PathVariable("id") Integer id,
-            @RequestBody MedicoRequestDTO request) {
+            @Valid @RequestBody MedicoRequestDTO request) {
         MedicoEntity updated = medicoService.modificar(id, request);
         return new ResponseEntity<>(medicoMapper.toResponse(updated), HttpStatus.OK);
     }
