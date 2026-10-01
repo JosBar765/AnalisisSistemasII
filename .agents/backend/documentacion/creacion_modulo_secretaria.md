@@ -12,7 +12,7 @@ sección "Fuera de alcance").
 
 El usuario aprobó explícitamente:
 
-1. **Cambio de esquema** en `Cita` (`.agents/MediSistema.sql`): dos columnas nulables
+1. **Cambio de esquema** en `Cita` (`database/schema.sql`; antes `.agents/MediSistema.sql`): dos columnas nulables
    - `hora_llegada time`: la secretaria registra que el paciente está presente.
    - `hora_solicitud_llamado time`: el médico solicita a la secretaria llamar al paciente.
    El análisis dice que no hay un proceso de *check-in* independiente y que la secretaria
@@ -95,7 +95,12 @@ transacción. El cliente consulta el detalle por REST.
 
 ## Seguridad (`SecurityConfig`)
 
-- `GET /pacientes|citas|documentos|auditorias/documentos`: SECRETARIA y MEDICO.
+> Actualizado por el módulo Médico (`creacion_modulo_medico.md`): el médico **ya no** lee
+> `GET /citas/**` general, solo `GET /citas/mis-citas/**`; y `/consultas`, `/expedientes` y
+> `/auditorias/consultas` son solo del médico. Lo siguiente describe la versión original de Secretaria.
+
+- `GET /pacientes|documentos|auditorias/documentos`: SECRETARIA y MEDICO (y `GET /citas/**`
+  solo SECRETARIA tras el módulo Médico).
 - Resto de métodos sobre `/pacientes`, `/citas`, `/documentos`: solo SECRETARIA.
 - `PATCH /citas/*/llamado`: solo MEDICO.
 - `GET /medicos/**`: ADMINISTRADOR y SECRETARIA (necesaria para elegir médico al programar).
@@ -114,11 +119,18 @@ Controller → Service → Repository → PostgreSQL
 
 - Verificado con una batería de 52 pruebas de API (seguridad por rol, reglas de negocio,
   WebSocket, documentos) contra PostgreSQL en Docker, y con el navegador. **Supabase Storage se
-  probó contra un servidor simulado** que confirma el formato de las peticiones
-  (`POST /storage/v1/object/{bucket}/{ruta}` y `.../object/sign/...`); no contra Supabase real por
-  falta de credenciales. El bucket debe existir y ser privado.
-- Si falla el guardado en BD tras subir el archivo, queda un archivo huérfano en Storage.
-- Conexiones WebSocket sin autenticar no se cierran por tiempo; solo no reciben eventos.
+  probó en esta fase contra un servidor simulado** (`POST /storage/v1/object/{bucket}/{ruta}` y
+  `.../object/sign/...`); la verificación contra Supabase real se hizo después (ver
+  `correcciones5.md`). El bucket debe existir y ser privado.
 - No se valida que la fecha de una cita sea futura (el análisis no lo define).
-- Pendientes de módulos futuros: `CITA_ATENDIDA` y pasar la cita a "Atendido" (módulo Médico).
 - Reinicie el backend tras actualizar; el esquema requiere el `ALTER TABLE` indicado arriba.
+
+### Pendientes que ya se resolvieron en otros documentos
+
+- Archivo huérfano en Storage si falla el guardado en BD → `correcciones5.md` (se elimina el
+  archivo nuevo si la transacción no se confirma; sigue sin barrido si el proceso se cae).
+- Conexiones WebSocket sin autenticar sin cierre por tiempo → `correcciones5.md` (cierre a los 10 s).
+- `CITA_ATENDIDA` y pasar la cita a "Atendido" → módulo Médico (`creacion_modulo_medico.md`).
+- Errores del cliente que respondían 500 (JSON mal formado, parámetro inválido, ruta inexistente)
+  → `correcciones6.md`.
+- Los orígenes CORS/WebSocket permitidos ahora se derivan de `FRONTEND_PORT` → `correcciones7.md`.

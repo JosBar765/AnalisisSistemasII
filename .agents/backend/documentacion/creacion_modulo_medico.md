@@ -100,8 +100,8 @@ de sus citas (verificado con un segundo médico que no recibió nada).
   por rol (403 a secretaria en rutas clínicas y de médico en `agenda-diaria`), 400 por validaciones y por
   reglas (llamado sin llegada, consulta repetida, médico ajeno, sin motivo, texto vacío, sin cambios),
   registro, modificación con auditoría de texto y signos vitales, y eventos WebSocket. `mvnw compile` sin errores.
-- **Dev:** `GlobalExceptionHandler` no tiene manejador para JSON mal formado (`HttpMessageNotReadableException`)
-  ni para rutas inexistentes: ambos responden 500 en vez de 400/404. No se tocó (fuera de alcance).
+- **Resuelto después:** `GlobalExceptionHandler` no tenía manejador para JSON mal formado ni rutas
+  inexistentes (respondían 500); se agregaron en `correcciones6.md`.
 - Un token de médico sigue válido hasta vencer aunque se inactive el usuario (limitación ya conocida de JWT).
 - `GET /consultas/{id}` lo puede leer cualquier médico (el análisis permite consultar cualquier expediente).
 - El médico no ve su propia especialidad en la interfaz: `GET /medicos/**` es solo de administrador y

@@ -1,7 +1,7 @@
 # Corrección 2 — Puerto del frontend configurable desde `.env` (Frontend)
 
-> Complementa `correcciones1.md` (environments generados desde `.env`). La numeración de ese archivo
-> contiene dos secciones "Corrección 1" (environments y agenda mensual); esta es la siguiente corrección.
+> Complementa `correcciones1.md` (environments generados desde `.env`). La corrección de la agenda
+> mensual, que antes estaba duplicada dentro de `correcciones1.md`, pasó a `correcciones3.md`.
 
 ## Problema
 
