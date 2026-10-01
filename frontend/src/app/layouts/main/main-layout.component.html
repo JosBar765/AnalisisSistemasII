@@ -133,7 +133,7 @@
         <div class="user-avatar">{{ iniciales() }}</div>
         <div class="user-info">
           <span class="user-name">{{ usuario()?.nombre }}</span>
-          <span class="user-role">{{ usuario()?.rol }}</span>
+          <span class="user-role">{{ especialidad() ?? usuario()?.rol }}</span>
         </div>
       </div>
     </div>

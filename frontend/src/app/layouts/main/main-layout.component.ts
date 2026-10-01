@@ -2,6 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Rol } from '../../core/models/usuario-auth.model';
 import { AuthService } from '../../core/services/auth.service';
+import { PerfilMedicoService } from '../../core/services/perfil-medico.service';
 
 const PANEL: Record<Rol, string> = {
   ADMINISTRADOR: 'Panel Admin',
@@ -26,6 +27,7 @@ export class MainLayoutComponent {
   private readonly auth = inject(AuthService);
 
   readonly usuario = this.auth.usuario;
+  readonly especialidad = inject(PerfilMedicoService).especialidad;
   readonly esAdmin = computed(() => this.usuario()?.rol === 'ADMINISTRADOR');
   readonly esMedico = computed(() => this.usuario()?.rol === 'MEDICO');
   readonly etiquetaPanel = computed(() => PANEL[this.usuario()?.rol ?? 'SECRETARIA']);
