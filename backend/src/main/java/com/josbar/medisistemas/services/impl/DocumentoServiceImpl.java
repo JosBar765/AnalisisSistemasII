@@ -35,7 +35,7 @@ import java.util.Set;
 public class DocumentoServiceImpl implements DocumentoService {
 
     private static final int TAMANIO_MAXIMO_NOMBRE = 255; // columna Documento.nombre
-    private static final Set<String> EXTENSIONES_PERMITIDAS = Set.of("pdf", "jpg", "jpeg", "png", "dcm");
+    private static final Set<String> EXTENSIONES_PERMITIDAS = Set.of("pdf", "jpg", "jpeg", "png");
 
     private final DocumentoRepository documentoRepository;
     private final PacienteRepository pacienteRepository;
@@ -157,7 +157,7 @@ public class DocumentoServiceImpl implements DocumentoService {
         }
         String extension = nombre.contains(".") ? nombre.substring(nombre.lastIndexOf('.') + 1).toLowerCase() : "";
         if (!EXTENSIONES_PERMITIDAS.contains(extension)) {
-            throw new BusinessRuleException("Tipo de archivo no permitido. Formatos válidos: PDF, JPG, PNG y DICOM (.dcm).");
+            throw new BusinessRuleException("Tipo de archivo no permitido. Formatos válidos: PDF, JPG, JPEG y PNG.");
         }
     }
 }

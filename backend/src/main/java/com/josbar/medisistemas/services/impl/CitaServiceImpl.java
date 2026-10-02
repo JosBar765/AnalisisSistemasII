@@ -84,6 +84,7 @@ public class CitaServiceImpl implements CitaService {
         }
 
         MedicoEntity medico = findMedico(entity.getMedicoEntity().getId());
+        validarCitasDelPacienteElMismoDia(paciente.getId(), medico.getId(), entity.getFecha(), entity.getHora(), null);
         validarHorarioDisponible(medico, entity.getFecha(), entity.getHora(), null);
 
         entity.setPacienteEntity(paciente);
@@ -150,6 +151,8 @@ public class CitaServiceImpl implements CitaService {
     @Transactional
     public CitaEntity reprogramar(Integer id, CitaEntity nuevaInformacion) {
         CitaEntity entity = findEnEspera(id, "reprogramar");
+        validarCitasDelPacienteElMismoDia(entity.getPacienteEntity().getId(), entity.getMedicoEntity().getId(),
+                nuevaInformacion.getFecha(), nuevaInformacion.getHora(), id);
         validarHorarioDisponible(entity.getMedicoEntity(), nuevaInformacion.getFecha(), nuevaInformacion.getHora(), id);
 
         entity.setFecha(nuevaInformacion.getFecha());
@@ -193,6 +196,29 @@ public class CitaServiceImpl implements CitaService {
         CitaEntity guardada = citaRepository.save(entity);
         publicar(TipoEventoCita.CITA_ACTUALIZADA, guardada);
         return guardada;
+    }
+
+    /**
+     * Un paciente puede tener varias citas el mismo día solo si son con **médicos distintos y a horas distintas**.
+     * Se rechaza otra cita (no cancelada) del mismo paciente ese día con el mismo médico o a la misma hora. Al
+     * reprogramar se excluye la propia cita.
+     */
+    private void validarCitasDelPacienteElMismoDia(Integer idPaciente, Integer idMedico, LocalDate fecha, LocalTime hora,
+                                                   Integer idCitaExcluida) {
+        for (CitaEntity existente : citaRepository.findByPacienteEntityIdAndFechaAndEstadoCitaEntityEstadoCitaNot(
+                idPaciente, fecha, ESTADO_CANCELADO)) {
+            if (existente.getId().equals(idCitaExcluida)) {
+                continue;
+            }
+            if (existente.getMedicoEntity().getId().equals(idMedico)) {
+                throw new BusinessRuleException("El paciente ya tiene una cita con este médico el " + fecha + " (a las "
+                        + existente.getHora() + "). Un paciente solo puede tener varias citas el mismo día con médicos distintos.");
+            }
+            if (existente.getHora().equals(hora)) {
+                throw new BusinessRuleException("El paciente ya tiene otra cita el " + fecha + " a las " + hora
+                        + " con otro médico. Un paciente no puede tener dos citas a la misma hora.");
+            }
+        }
     }
 
     private void validarHorarioDisponible(MedicoEntity medico, LocalDate fecha, LocalTime hora, Integer idCitaExcluida) {
