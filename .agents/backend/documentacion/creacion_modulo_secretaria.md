@@ -80,7 +80,7 @@ actualizaba `fechaNacimiento`. El DPI no se modifica.
 `idCategoriaDocumento` opcional), `GET /documentos/paciente/{id}`, `GET /documentos/{id}/enlace`
 (URL firmada de 5 minutos), `GET /auditorias/documentos/paciente/{id}`.
 - El usuario que carga sale del JWT (`sub`); se eliminó el parche temporal `idUsuarioCarga`.
-- Formatos permitidos: pdf, jpg, jpeg, png, dcm. Ruta en Storage:
+- Formatos permitidos: pdf, jpg, jpeg, png (`dcm` se retiró: `correcciones17.md`). Ruta en Storage:
   `paciente-{id}/{uuid}-{nombre}`; la columna `Documento.url` guarda esa ruta.
 - Al reemplazar se crea `AuditoriaDocumento` (nombre/URL anterior y nueva, usuario, fecha,
   motivo). El archivo anterior **no** se borra del almacenamiento.
