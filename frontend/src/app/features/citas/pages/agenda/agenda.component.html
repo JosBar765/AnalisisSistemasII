@@ -87,11 +87,9 @@
                 </td>
                 <td><span [class]="'badge ' + claseEstado(cita)">{{ cita.estadoCitaResponseDTO.nombre }}</span></td>
                 <td>
+                  <button class="btn btn-secondary btn-sm" (click)="abrirReprogramar(cita)">Reprogramar</button>
                   @if (estaEnEspera(cita)) {
-                    <button class="btn btn-secondary btn-sm" (click)="abrirReprogramar(cita)">Reprogramar</button>
                     <button class="btn btn-danger btn-sm" (click)="citaPorCancelar.set(cita)">Cancelar</button>
-                  } @else {
-                    <span style="font-size:12px; color:var(--color-text-muted);">Sin acciones disponibles</span>
                   }
                 </td>
               </tr>

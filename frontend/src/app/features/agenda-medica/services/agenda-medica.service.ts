@@ -31,6 +31,10 @@ export class AgendaMedicaService {
     return this.http.get<ConsultaFinalizada[]>(`${this.apiUrl}/consultas/mias`, { params });
   }
 
+  cancelarLlamado(idCita: number): Observable<CitaMedica> {
+    return this.http.delete<CitaMedica>(`${this.apiUrl}/citas/${idCita}/llamado`);
+  }
+
   solicitarLlamado(idCita: number): Observable<CitaMedica> {
     return this.http.patch<CitaMedica>(`${this.apiUrl}/citas/${idCita}/llamado`, null);
   }

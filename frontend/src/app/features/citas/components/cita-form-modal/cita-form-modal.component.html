@@ -7,6 +7,12 @@
     <div class="modal-body">
 
       <form [formGroup]="form">
+        @if (esSeguimiento()) {
+          <div class="alert alert-info">
+            Esta cita ya fue atendida y se conservará con su consulta. Al guardar se creará una cita nueva con el mismo
+            paciente y médico en la fecha y hora que elija.
+          </div>
+        }
         @if (cita(); as c) {
           <div class="form-row">
             <div class="form-group">

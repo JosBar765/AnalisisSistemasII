@@ -2,7 +2,7 @@ import { Component, OnInit, computed, inject, input, output, signal } from '@ang
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CitaService } from '../../services/cita.service';
-import { Cita, MedicoCita, PacienteCita } from '../../models/cita.model';
+import { Cita, ESTADO_ATENDIDO, MedicoCita, PacienteCita } from '../../models/cita.model';
 import { Hora12Pipe } from '../../../../shared/pipes/hora12.pipe';
 import { NombreCompletoPipe, nombreCompleto } from '../../../../shared/pipes/nombre-completo.pipe';
 import { NotificationService } from '../../../../core/services/notification.service';
@@ -27,6 +27,7 @@ export class CitaFormModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
 
   readonly cita = input<Cita | null>(null);
+  readonly esSeguimiento = computed(() => this.cita()?.estadoCitaResponseDTO.nombre === ESTADO_ATENDIDO);
   readonly fechaInicial = input<string>('');
   readonly idPacienteInicial = input<number | null>(null);
 

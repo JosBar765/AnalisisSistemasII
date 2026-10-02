@@ -82,6 +82,13 @@ export class AgendaMedicaComponent implements OnInit {
     this.agendaService.listarMisConsultas(fecha).subscribe({ next: (data) => this.consultas.set(data) });
   }
 
+  cancelarLlamado(cita: CitaMedica): void {
+    this.agendaService.cancelarLlamado(cita.id).subscribe({
+      next: () => this.cargar(false),
+      error: (err: HttpErrorResponse) => this.notificacion.error(mensajeDeError(err, 'No se pudo cancelar el llamado.')),
+    });
+  }
+
   solicitarLlamado(cita: CitaMedica): void {
     this.agendaService.solicitarLlamado(cita.id).subscribe({
       next: () => this.cargar(false),

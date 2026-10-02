@@ -12,7 +12,7 @@
       aria-label="Fecha de la agenda"
     />
     @if (esHoy()) {
-      <button class="btn btn-primary btn-lg" [disabled]="!siguiente()" (click)="solicitarLlamado(siguiente()!)">
+      <button class="btn btn-primary btn-lg" [disabled]="!siguiente() || llamados().length > 0" (click)="solicitarLlamado(siguiente()!)">
         Solicitar Llamar Siguiente Paciente
       </button>
     }
@@ -34,7 +34,10 @@
             <strong>Solicitud enviada a Recepción:</strong> se notificó a la secretaria para llamar al paciente en sala:
             <strong>{{ cita.pacienteResponseDTO | nombreCompleto }}</strong>.
           </div>
-          <a [routerLink]="['/consultas/nueva', cita.id]" class="btn btn-primary btn-sm">Iniciar Consulta Médica</a>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary btn-sm" (click)="cancelarLlamado(cita)">Cancelar Llamado</button>
+            <a [routerLink]="['/consultas/nueva', cita.id]" class="btn btn-primary btn-sm">Iniciar Consulta Médica</a>
+          </div>
         </div>
       }
 
@@ -77,7 +80,14 @@
                     @if (cita.horaSolicitudLlamado) {
                       <a [routerLink]="['/consultas/nueva', cita.id]" class="btn btn-primary btn-sm">Atender Consulta</a>
                     } @else {
-                      <button class="btn btn-outline-primary btn-sm" (click)="solicitarLlamado(cita)">Solicitar Llamado</button>
+                      <button
+                        class="btn btn-outline-primary btn-sm"
+                        [disabled]="llamados().length > 0"
+                        [title]="llamados().length > 0 ? 'Atienda al paciente ya llamado antes de llamar al siguiente' : ''"
+                        (click)="solicitarLlamado(cita)"
+                      >
+                        Solicitar Llamado
+                      </button>
                     }
                   </td>
                 </tr>
