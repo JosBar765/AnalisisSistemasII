@@ -9,12 +9,13 @@ import { Catalogo } from '../../models/catalogo.model';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { Hora24Component } from '../../../../shared/components/hora-24/hora-24.component';
 import { FondoModalDirective } from '../../../../shared/directives/fondo-modal.directive';
 
 @Component({
   selector: 'app-jornadas',
   standalone: true,
-  imports: [FondoModalDirective, ReactiveFormsModule, LoadingSpinnerComponent],
+  imports: [FondoModalDirective, Hora24Component, ReactiveFormsModule, LoadingSpinnerComponent],
   templateUrl: './jornadas.component.html',
 })
 export class JornadasComponent implements OnInit {
