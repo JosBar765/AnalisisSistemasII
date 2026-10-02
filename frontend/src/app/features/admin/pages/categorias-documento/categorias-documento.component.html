@@ -1,0 +1,89 @@
+<header class="top-bar">
+  <div>
+    <h1 class="page-header-title">Categorías de documentos clínicos</h1>
+    <p class="page-header-subtitle">Clasificación disponible al subir documentos al expediente del paciente</p>
+  </div>
+  <div class="top-actions">
+    <button class="btn btn-primary" (click)="abrirNueva()">
+      <svg class="svg-icon" viewBox="0 0 24 24">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Nueva Categoría
+    </button>
+  </div>
+</header>
+
+<div class="content-body">
+  @if (error()) {
+    <div class="alert alert-danger">{{ error() }}</div>
+  }
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Categorías Registradas</h3>
+    </div>
+
+    @if (cargando()) {
+      <app-loading-spinner />
+    } @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Categoría</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (categoria of categorias(); track categoria.id) {
+              <tr>
+                <td><strong>{{ categoria.nombre }}</strong></td>
+                <td>
+                  <button class="btn btn-secondary btn-sm" (click)="abrirEditar(categoria)">Editar</button>
+                  <button class="btn btn-outline-primary btn-sm" (click)="eliminar(categoria)">Eliminar</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr class="empty-row">
+                <td colspan="2">No hay categorías registradas.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+@if (modalAbierto()) {
+  <div class="modal-backdrop" appFondoModal (fondoClick)="cerrarModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">
+          {{ categoriaEditando() ? 'Editar Categoría' : 'Registrar Nueva Categoría' }}
+        </h3>
+        <button class="modal-close" (click)="cerrarModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="form" (ngSubmit)="guardar()">
+          <div class="form-group">
+            <label class="form-label">Nombre de la Categoría</label>
+            <input
+              type="text"
+              class="form-control"
+              formControlName="nombre"
+              maxlength="100"
+              placeholder="Ej. Informe quirúrgico"
+              required
+            />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+        <button class="btn btn-primary" [disabled]="form.invalid" (click)="guardar()">Guardar Categoría</button>
+      </div>
+    </div>
+  </div>
+}

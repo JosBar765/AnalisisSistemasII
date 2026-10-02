@@ -8,6 +8,7 @@ import { LoadingSpinnerComponent } from '../../../../shared/components/loading-s
 import { NombreCompletoPipe, nombreCompleto } from '../../../../shared/pipes/nombre-completo.pipe';
 import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { coincideBusqueda } from '../../../../shared/utils/busqueda';
 
 @Component({
   selector: 'app-pacientes-listar',
@@ -29,10 +30,8 @@ export class ListarPacientesComponent implements OnInit {
   readonly guardando = signal(false);
 
   readonly pacientesFiltrados = computed(() => {
-    const texto = this.busqueda().toLowerCase().trim();
-    if (!texto) return this.pacientes();
     return this.pacientes().filter((p) =>
-      `${p.dpi} ${nombreCompleto(p)} ${p.telefono}`.toLowerCase().includes(texto),
+      coincideBusqueda(`${p.dpi} ${nombreCompleto(p)} ${p.telefono}`, this.busqueda()),
     );
   });
 

@@ -5,6 +5,7 @@ import { PacienteExpediente } from '../../models/expediente.model';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 import { EdadPipe } from '../../../../shared/pipes/edad.pipe';
 import { NombreCompletoPipe, nombreCompleto } from '../../../../shared/pipes/nombre-completo.pipe';
+import { coincideBusqueda } from '../../../../shared/utils/busqueda';
 
 /** Buscador de pacientes para abrir su expediente clínico (UC-MED-002). */
 @Component({
@@ -22,9 +23,9 @@ export class BuscarExpedienteComponent implements OnInit {
   readonly busqueda = signal('');
 
   readonly pacientesFiltrados = computed(() => {
-    const texto = this.busqueda().toLowerCase().trim();
-    if (!texto) return this.pacientes();
-    return this.pacientes().filter((p) => `${p.dpi} ${nombreCompleto(p)} ${p.telefono}`.toLowerCase().includes(texto));
+    return this.pacientes().filter((p) =>
+      coincideBusqueda(`${p.dpi} ${nombreCompleto(p)} ${p.telefono}`, this.busqueda()),
+    );
   });
 
   ngOnInit(): void {

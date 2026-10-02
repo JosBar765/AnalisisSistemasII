@@ -33,4 +33,4 @@ export interface AuditoriaDocumento {
   urlNuevo: string | null;
 }
 
-export const EXTENSIONES_PERMITIDAS = '.pdf,.jpg,.jpeg,.png,.dcm';
+export const EXTENSIONES_PERMITIDAS = '.pdf,.jpg,.jpeg,.png';

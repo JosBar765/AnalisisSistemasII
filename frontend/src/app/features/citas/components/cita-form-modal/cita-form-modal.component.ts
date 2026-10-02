@@ -8,6 +8,7 @@ import { NombreCompletoPipe, nombreCompleto } from '../../../../shared/pipes/nom
 import { NotificationService } from '../../../../core/services/notification.service';
 import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
 import { FondoModalDirective } from '../../../../shared/directives/fondo-modal.directive';
+import { coincideBusqueda } from '../../../../shared/utils/busqueda';
 
 /**
  * Modal para programar una cita nueva o reprogramar una existente (si recibe `cita`).
@@ -41,9 +42,8 @@ export class CitaFormModalComponent implements OnInit {
   readonly guardando = signal(false);
 
   readonly pacientesFiltrados = computed(() => {
-    const texto = this.filtroPaciente().toLowerCase().trim();
     return this.pacientes().filter(
-      (p) => p.estado && (!texto || `${p.dpi} ${nombreCompleto(p)}`.toLowerCase().includes(texto)),
+      (p) => p.estado && coincideBusqueda(`${p.dpi} ${nombreCompleto(p)}`, this.filtroPaciente()),
     );
   });
 

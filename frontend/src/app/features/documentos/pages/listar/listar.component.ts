@@ -6,9 +6,10 @@ import { AuditoriaDocumento, Documento, PacienteDocumento } from '../../models/d
 import { SubirDocumentoModalComponent } from '../../components/subir-documento-modal/subir-documento-modal.component';
 import { ReemplazarDocumentoModalComponent } from '../../components/reemplazar-documento-modal/reemplazar-documento-modal.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
-import { NombreCompletoPipe } from '../../../../shared/pipes/nombre-completo.pipe';
+import { NombreCompletoPipe, nombreCompleto } from '../../../../shared/pipes/nombre-completo.pipe';
 import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { coincideBusqueda } from '../../../../shared/utils/busqueda';
 
 @Component({
   selector: 'app-documentos-listar',
@@ -36,6 +37,15 @@ export class ListarDocumentosComponent implements OnInit {
 
   readonly subiendo = signal(false);
   readonly documentoReemplazando = signal<Documento | null>(null);
+
+  readonly busquedaPaciente = signal('');
+
+  /** Pacientes que coinciden con el buscador (nombre o DPI); el seleccionado siempre se conserva en la lista. */
+  readonly pacientesFiltrados = computed(() =>
+    this.pacientes().filter(
+      (p) => p.id === this.idPaciente() || coincideBusqueda(`${p.dpi} ${nombreCompleto(p)}`, this.busquedaPaciente()),
+    ),
+  );
 
   readonly paciente = computed(() => this.pacientes().find((p) => p.id === this.idPaciente()) ?? null);
 

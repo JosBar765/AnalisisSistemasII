@@ -16,6 +16,13 @@ export const ADMIN_ROUTES: Routes = [
       import('./pages/especialidades/especialidades.component').then((m) => m.EspecialidadesComponent),
   },
   {
+    path: 'categorias-documento',
+    loadComponent: () =>
+      import('./pages/categorias-documento/categorias-documento.component').then(
+        (m) => m.CategoriasDocumentoComponent,
+      ),
+  },
+  {
     path: 'medicos',
     loadComponent: () => import('./pages/medicos/medicos.component').then((m) => m.MedicosComponent),
   },

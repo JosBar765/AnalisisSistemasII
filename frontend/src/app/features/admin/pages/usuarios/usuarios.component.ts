@@ -8,6 +8,7 @@ import { LoadingSpinnerComponent } from '../../../../shared/components/loading-s
 import { mensajeDeError } from '../../../../shared/utils/mensaje-error';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { FondoModalDirective } from '../../../../shared/directives/fondo-modal.directive';
+import { coincideBusqueda } from '../../../../shared/utils/busqueda';
 
 @Component({
   selector: 'app-usuarios',
@@ -30,10 +31,11 @@ export class UsuariosComponent implements OnInit {
   readonly busqueda = signal('');
 
   readonly usuariosFiltrados = computed(() => {
-    const texto = this.busqueda().toLowerCase().trim();
-    if (!texto) return this.usuarios();
     return this.usuarios().filter((u) =>
-      `${u.primerNombre} ${u.primerApellido} ${u.correo}`.toLowerCase().includes(texto)
+      coincideBusqueda(
+        `${u.primerNombre} ${u.segundoNombre ?? ''} ${u.primerApellido} ${u.segundoApellido ?? ''} ${u.correo}`,
+        this.busqueda(),
+      ),
     );
   });
 

@@ -17,6 +17,10 @@ export class CatalogoService {
     return this.http.get<Catalogo[]>(`${this.apiUrl}/especialidades`);
   }
 
+  listarCategoriasDocumento(): Observable<Catalogo[]> {
+    return this.http.get<Catalogo[]>(`${this.apiUrl}/categorias-documento`);
+  }
+
   listarDiasSemana(): Observable<Catalogo[]> {
     return this.http.get<Catalogo[]>(`${this.apiUrl}/dias-semana`);
   }
