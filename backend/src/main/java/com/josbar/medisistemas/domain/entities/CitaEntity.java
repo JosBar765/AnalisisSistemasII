@@ -44,4 +44,9 @@ public class CitaEntity {
 
     @Column(name = "hora_solicitud_llamado")
     private LocalTime horaSolicitudLlamado;
+
+    /** Cuántas veces se canceló esta cita. No baja al reprogramarla: es el historial que usa el dashboard. */
+    @Builder.Default
+    @Column(name = "veces_cancelada", nullable = false)
+    private Integer vecesCancelada = 0;
 }

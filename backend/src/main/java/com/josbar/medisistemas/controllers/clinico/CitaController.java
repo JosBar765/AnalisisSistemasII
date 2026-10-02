@@ -109,6 +109,14 @@ public class CitaController {
         return new ResponseEntity<>(citaMapper.toResponse(cita), HttpStatus.OK);
     }
 
+    @DeleteMapping("/{id}/llamado")
+    public ResponseEntity<CitaResponseDTO> cancelarLlamado(
+            @PathVariable("id") Integer id,
+            @AuthenticationPrincipal Jwt jwt) {
+        var cita = citaService.cancelarLlamado(id, Integer.valueOf(jwt.getSubject()));
+        return new ResponseEntity<>(citaMapper.toResponse(cita), HttpStatus.OK);
+    }
+
     @PatchMapping("/{id}/llamado")
     public ResponseEntity<CitaResponseDTO> solicitarLlamado(
             @PathVariable("id") Integer id,

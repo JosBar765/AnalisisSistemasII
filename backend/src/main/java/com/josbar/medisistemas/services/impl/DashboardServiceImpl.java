@@ -27,7 +27,7 @@ public class DashboardServiceImpl implements DashboardService {
         return DashboardResponseDTO.builder()
                 .pacientesRegistrados(pacienteRepository.count())
                 .consultasRealizadas(consultaRepository.count())
-                .citasCanceladas(citaRepository.countByEstadoCitaEntityEstadoCita("Cancelado"))
+                .citasCanceladas(citaRepository.totalCancelaciones())
                 .consultasPorMedico(consultaRepository.obtenerConsultasPorMedico().stream()
                         .map(c -> new ConsultaPorMedicoDTO(c.getIdMedico(), Texto.titulo(c.getNombreMedico()), c.getCantidad()))
                         .toList())

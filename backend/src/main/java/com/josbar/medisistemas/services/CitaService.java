@@ -22,4 +22,7 @@ public interface CitaService {
     CitaEntity reprogramar(Integer id, CitaEntity nuevaInformacion);
     CitaEntity registrarLlegada(Integer id);
     CitaEntity solicitarLlamado(Integer id, Integer idMedico);
+
+    /** El médico retira el llamado pendiente de una de sus citas (p. ej. el paciente no se presentó). */
+    CitaEntity cancelarLlamado(Integer id, Integer idMedico);
 }

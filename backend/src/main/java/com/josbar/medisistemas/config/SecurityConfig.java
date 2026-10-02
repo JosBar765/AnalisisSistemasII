@@ -46,6 +46,7 @@ public class SecurityConfig {
                         // El handshake es público; el WebSocket valida el JWT en su primer mensaje.
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/citas/*/llamado").hasRole(MEDICO)
+                        .requestMatchers(HttpMethod.DELETE, "/citas/*/llamado").hasRole(MEDICO)
                         // El médico solo ve su propia agenda; la información clínica es solo del médico.
                         .requestMatchers(HttpMethod.GET, "/citas/mis-citas/**").hasRole(MEDICO)
                         .requestMatchers("/consultas/**", "/expedientes/**", "/auditorias/consultas/**").hasRole(MEDICO)

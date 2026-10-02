@@ -18,6 +18,7 @@ import com.josbar.medisistemas.repositories.EstadoCitaRepository;
 import com.josbar.medisistemas.repositories.JornadaMedicaRepository;
 import com.josbar.medisistemas.repositories.MedicoRepository;
 import com.josbar.medisistemas.repositories.PacienteRepository;
+import com.josbar.medisistemas.utils.Texto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +43,7 @@ public class CitaServiceImpl implements CitaService {
 
     private static final String ESTADO_EN_ESPERA = "En espera";
     private static final String ESTADO_CANCELADO = "Cancelado";
+    private static final String ESTADO_ATENDIDO = "Atendido";
 
     private static final Map<DayOfWeek, String> DIA_SEMANA_ES = Map.of(
             DayOfWeek.MONDAY, "Lunes",
@@ -142,6 +144,7 @@ public class CitaServiceImpl implements CitaService {
         CitaEntity entity = findEnEspera(id, "cancelar");
         entity.setEstadoCitaEntity(estadoCitaRepository.findByEstadoCita(ESTADO_CANCELADO)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el estado de cita '" + ESTADO_CANCELADO + "'.")));
+        entity.setVecesCancelada(entity.getVecesCancelada() + 1);
         CitaEntity guardada = citaRepository.save(entity);
         publicar(TipoEventoCita.CITA_CANCELADA, guardada);
         return guardada;
@@ -150,7 +153,11 @@ public class CitaServiceImpl implements CitaService {
     @Override
     @Transactional
     public CitaEntity reprogramar(Integer id, CitaEntity nuevaInformacion) {
-        CitaEntity entity = findEnEspera(id, "reprogramar");
+        CitaEntity entity = findPorId(id);
+        String estadoActual = entity.getEstadoCitaEntity().getEstadoCita();
+        if (ESTADO_ATENDIDO.equals(estadoActual)) {
+            return programarSeguimiento(entity, nuevaInformacion);
+        }
         validarCitasDelPacienteElMismoDia(entity.getPacienteEntity().getId(), entity.getMedicoEntity().getId(),
                 nuevaInformacion.getFecha(), nuevaInformacion.getHora(), id);
         validarHorarioDisponible(entity.getMedicoEntity(), nuevaInformacion.getFecha(), nuevaInformacion.getHora(), id);
@@ -159,6 +166,11 @@ public class CitaServiceImpl implements CitaService {
         entity.setHora(nuevaInformacion.getHora());
         entity.setHoraLlegada(null);
         entity.setHoraSolicitudLlamado(null);
+        // Una cita cancelada que se reprograma vuelve a estar vigente.
+        if (ESTADO_CANCELADO.equals(estadoActual)) {
+            entity.setEstadoCitaEntity(estadoCitaRepository.findByEstadoCita(ESTADO_EN_ESPERA)
+                    .orElseThrow(() -> new ResourceNotFoundException("No se encontró el estado de cita '" + ESTADO_EN_ESPERA + "'.")));
+        }
         CitaEntity guardada = citaRepository.save(entity);
         publicar(TipoEventoCita.CITA_ACTUALIZADA, guardada);
         return guardada;
@@ -192,6 +204,17 @@ public class CitaServiceImpl implements CitaService {
             throw new BusinessRuleException("Solo se puede solicitar el llamado de un paciente presente en la clínica.");
         }
 
+        // Solo un llamado a la vez por médico: debe atender (o cancelar/reprogramar) al paciente ya llamado.
+        citaRepository.findByMedicoEntityIdAndFechaAndHoraSolicitudLlamadoIsNotNullAndEstadoCitaEntityEstadoCita(
+                        idMedico, entity.getFecha(), ESTADO_EN_ESPERA).stream()
+                .findFirst()
+                .ifPresent(llamada -> {
+                    throw new BusinessRuleException("Ya solicitó el llamado de "
+                            + Texto.titulo(llamada.getPacienteEntity().getPrimerNombre() + " "
+                            + llamada.getPacienteEntity().getPrimerApellido())
+                            + ". Atienda a ese paciente antes de llamar al siguiente.");
+                });
+
         entity.setHoraSolicitudLlamado(LocalTime.now().truncatedTo(ChronoUnit.SECONDS));
         CitaEntity guardada = citaRepository.save(entity);
         publicar(TipoEventoCita.CITA_ACTUALIZADA, guardada);
@@ -203,6 +226,22 @@ public class CitaServiceImpl implements CitaService {
      * Se rechaza otra cita (no cancelada) del mismo paciente ese día con el mismo médico o a la misma hora. Al
      * reprogramar se excluye la propia cita.
      */
+    @Override
+    @Transactional
+    public CitaEntity cancelarLlamado(Integer id, Integer idMedico) {
+        CitaEntity entity = findEnEspera(id, "cancelar el llamado de");
+        if (!entity.getMedicoEntity().getId().equals(idMedico)) {
+            throw new BusinessRuleException("El médico solo puede cancelar el llamado de pacientes de sus propias citas.");
+        }
+        if (entity.getHoraSolicitudLlamado() == null) {
+            throw new BusinessRuleException("Esta cita no tiene un llamado pendiente.");
+        }
+        entity.setHoraSolicitudLlamado(null);
+        CitaEntity guardada = citaRepository.save(entity);
+        publicar(TipoEventoCita.CITA_ACTUALIZADA, guardada);
+        return guardada;
+    }
+
     private void validarCitasDelPacienteElMismoDia(Integer idPaciente, Integer idMedico, LocalDate fecha, LocalTime hora,
                                                    Integer idCitaExcluida) {
         for (CitaEntity existente : citaRepository.findByPacienteEntityIdAndFechaAndEstadoCitaEntityEstadoCitaNot(
@@ -219,6 +258,28 @@ public class CitaServiceImpl implements CitaService {
                         + " con otro médico. Un paciente no puede tener dos citas a la misma hora.");
             }
         }
+    }
+
+    /**
+     * Reprogramar una cita ya atendida no la mueve: su consulta (diagnóstico, signos vitales, fecha) es historia clínica
+     * y debe quedar intacta. Se crea una cita nueva "En espera" con el mismo paciente y médico para la nueva fecha y hora.
+     */
+    private CitaEntity programarSeguimiento(CitaEntity atendida, CitaEntity nuevaInformacion) {
+        MedicoEntity medico = atendida.getMedicoEntity();
+        validarCitasDelPacienteElMismoDia(atendida.getPacienteEntity().getId(), medico.getId(),
+                nuevaInformacion.getFecha(), nuevaInformacion.getHora(), null);
+        validarHorarioDisponible(medico, nuevaInformacion.getFecha(), nuevaInformacion.getHora(), null);
+
+        CitaEntity seguimiento = new CitaEntity();
+        seguimiento.setPacienteEntity(atendida.getPacienteEntity());
+        seguimiento.setMedicoEntity(medico);
+        seguimiento.setFecha(nuevaInformacion.getFecha());
+        seguimiento.setHora(nuevaInformacion.getHora());
+        seguimiento.setEstadoCitaEntity(estadoCitaRepository.findByEstadoCita(ESTADO_EN_ESPERA)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró el estado de cita '" + ESTADO_EN_ESPERA + "'.")));
+        CitaEntity guardada = citaRepository.save(seguimiento);
+        publicar(TipoEventoCita.CITA_CREADA, guardada);
+        return guardada;
     }
 
     private void validarHorarioDisponible(MedicoEntity medico, LocalDate fecha, LocalTime hora, Integer idCitaExcluida) {
@@ -272,9 +333,13 @@ public class CitaServiceImpl implements CitaService {
         eventoPublisher.publicar(new EventoCitaDTO(tipo, cita.getId(), cita.getMedicoEntity().getId()));
     }
 
-    private CitaEntity findEnEspera(Integer id, String accion) {
-        CitaEntity entity = citaRepository.findById(id)
+    private CitaEntity findPorId(Integer id) {
+        return citaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró la cita con id " + id));
+    }
+
+    private CitaEntity findEnEspera(Integer id, String accion) {
+        CitaEntity entity = findPorId(id);
         if (!ESTADO_EN_ESPERA.equals(entity.getEstadoCitaEntity().getEstadoCita())) {
             throw new BusinessRuleException("Solo se puede " + accion + " una cita en estado '" + ESTADO_EN_ESPERA + "'.");
         }
