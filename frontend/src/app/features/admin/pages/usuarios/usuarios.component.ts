@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { map, of, switchMap } from 'rxjs';
 import { UsuarioService } from '../../services/usuario.service';
 import { CatalogoService } from '../../services/catalogo.service';
 import { Usuario } from '../../models/usuario.model';
@@ -94,7 +95,8 @@ export class UsuariosComponent implements OnInit {
       contrasenia: '',
       idRol: usuario.rol.id,
     });
-    this.form.controls.contrasenia.clearValidators();
+    // Al editar la contraseña es opcional, pero si se escribe debe cumplir el mismo mínimo que al crear.
+    this.form.controls.contrasenia.setValidators(Validators.minLength(8));
     this.form.controls.contrasenia.updateValueAndValidity();
     this.modalAbierto.set(true);
   }
@@ -120,12 +122,19 @@ export class UsuariosComponent implements OnInit {
       segundoApellido: valor.segundoApellido || undefined,
       correo: valor.correo,
       telefono: valor.telefono,
-      contrasenia: valor.contrasenia || undefined,
+      // Al editar, la contraseña no viaja en el PUT: se cambia aparte con su propio endpoint.
+      contrasenia: editando ? undefined : valor.contrasenia || undefined,
       estado: editando?.estado ?? true,
     };
 
     const peticion = editando
-      ? this.usuarioService.modificar(editando.id, request)
+      ? this.usuarioService.modificar(editando.id, request).pipe(
+          switchMap((usuario) =>
+            valor.contrasenia
+              ? this.usuarioService.cambiarContrasenia(editando.id, valor.contrasenia).pipe(map(() => usuario))
+              : of(usuario),
+          ),
+        )
       : this.usuarioService.registrar(request);
 
     peticion.subscribe({
